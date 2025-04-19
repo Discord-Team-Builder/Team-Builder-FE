@@ -16,13 +16,13 @@ const Navbar= ({ isAuthenticated = false }) => {
         </div>
 
         <nav className="hidden md:flex items-center space-x-6">
-          <a href="#features" className="text-lg font-medium text-gray-600 hover:text-[#7289DA] transition-colors">
+          <a href="#features" className="text-lg font-medium text-gray-600 hover:text-discord-lighttransition-colors">
             Features
           </a>
-          <a href="#how-it-works" className="text-lg font-medium text-gray-600 hover:text-[#7289DA] transition-colors">
+          <a href="#how-it-works" className="text-lg font-medium text-gray-600 hover:text-discord-light transition-colors">
             How It Works
           </a>
-          <a href="#faq" className="text-lg font-medium text-gray-600 hover:text-[#7289DA] transition-colors">
+          <a href="#faq" className="text-lg font-medium text-gray-600 hover:text-discord-light transition-colors">
             FAQ
           </a>
         </nav>
@@ -50,7 +50,7 @@ const Navbar= ({ isAuthenticated = false }) => {
             </>
           ) : (
             <Button 
-              className="bg-[#5865F2] hover:bg-[#4752C4] cursor-pointer text-white"
+              className="bg-discord hover:bg-discord-dark cursor-pointer text-white"
               onClick={() => navigate.push("/login")}
             >
               <LogIn className="h-4 w-4" />
