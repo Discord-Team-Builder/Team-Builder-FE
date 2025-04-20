@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Sparkles, Clock10 } from "lucide-react";
 import Link from "next/link";
 
+
 // Blob Effect for Background
 const BlobEffect = () => {
   return (
@@ -36,8 +37,8 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-[#5865F2]"
+  <div
+      className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden bg-[#5865F2]"
       style={{
         background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.7))`,
         transition: "background 0.2s ease-in-out",
@@ -71,7 +72,7 @@ const Dashboard = () => {
           </Link>
         </div>
       </div>
-    </div>
+  </div>
   );
 };
 
