@@ -20,6 +20,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-destructive: #fff;
   --color-discord: #5865F2;
   --color-discord-dark: #4752C4;
   --color-discord-light: #7289DA;

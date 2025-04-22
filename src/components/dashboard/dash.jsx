@@ -1,13 +1,15 @@
+import React, {useState} from 'react'
 import {
     Card,
     CardHeader,
     CardTitle,
     CardContent,
   } from "@/components/ui/card";
-  import { Users, FolderOpen, Settings, Trash2 } from "lucide-react";
+import { Users, FolderOpen, Settings, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { getRoleStyles } from "./state";
 import CreateProjectCard from "./createProjectCard";
+import DialogDeleteConfirm from "../models/deleteConfirm";
 
 
 // Sample Data
@@ -53,6 +55,33 @@ const courseData = [
   ];
   
  const Dash  = () => {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false); // State for delete loading
+
+  const openDeleteModal = (item) => {
+    setItemToDelete(item);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setItemToDelete(null);
+  };
+
+  const handleDelete = async (item) => {
+    if (item) {
+      setIsDeleting(true);
+      console.log("Deleting:", item);
+     
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      setIsDeleting(false);
+      closeDeleteModal();
+
+    }
+  };
+
     return (
       <>
       <div className="flex flex-col md:flex-row gap-4">
@@ -107,6 +136,7 @@ const courseData = [
             <Button
               variant="outline"
               className="text-red-600 border-red-100 hover:bg-red-50 px-3 h-7 text-sm"
+              onClick={() => openDeleteModal(course)} 
             >
               <Trash2 className="w-3.5 h-3.5 mr-1" />
               Delete
@@ -116,6 +146,13 @@ const courseData = [
       ))}
       <CreateProjectCard/>
     </div>
+    <DialogDeleteConfirm
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDelete}
+        item={itemToDelete}
+        isDeleting={isDeleting}
+      />
       </>
     );
   }
