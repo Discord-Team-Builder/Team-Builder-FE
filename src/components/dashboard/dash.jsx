@@ -10,6 +10,8 @@ import { Button } from "../ui/button";
 import { getRoleStyles } from "./state";
 import CreateProjectCard from "./createProjectCard";
 import DialogDeleteConfirm from "../models/deleteConfirm";
+import { toast } from 'sonner';
+import showToast from '../shared/showToast';
 
 
 // Sample Data
@@ -78,7 +80,7 @@ const courseData = [
 
       setIsDeleting(false);
       closeDeleteModal();
-
+      showToast('success', `${item.title} deleted successfully`)
     }
   };
 

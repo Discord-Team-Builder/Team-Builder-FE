@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from "lucide-react"
 
 const DialogDeleteConfirm = ({ isOpen, onClose, onConfirm, item, isDeleting }) => {
   return (
@@ -27,7 +28,14 @@ const DialogDeleteConfirm = ({ isOpen, onClose, onConfirm, item, isDeleting }) =
             disabled={isDeleting}
             onClick={() => onConfirm(item)}
           >
-            Delete
+            {isDeleting ? (
+                <>
+                    <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                    Deleting
+                </>
+                ) : (
+                'Delete'
+                )}
           </Button>
         </DialogFooter>
       </DialogContent>
