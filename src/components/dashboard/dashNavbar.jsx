@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { LayoutGrid, Users, ChevronDown, Search,CircleUserRound } from "lucide-react";
+import { Users, ChevronDown, Search,CircleUserRound } from "lucide-react";
 import { Input } from "../ui/input";
 
 const DashNavbar= () => {
@@ -18,9 +18,10 @@ const DashNavbar= () => {
 
         <div className="relative hidden md:flex max-w-96 w-full">
           <Input
+            name="search"
             type="text"
             placeholder="Search..."
-            className="pr-10" // Padding for icon
+            className="pr-10" 
           />
           <Search className="absolute right-3 top-1/2 cursor-pointer transform -translate-y-1/2 text-gray-400 h-5 w-5" />
         </div>

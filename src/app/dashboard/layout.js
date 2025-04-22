@@ -14,7 +14,7 @@ export default function DashboardLayout({ children }) {
         <DashNavbar />
         <div className="flex flex-1 overflow-hidden">
         <SidebarNavigation />
-        <main className="flex-1 overflow-y-auto scrollbar-hide p-4 bg-gray-100 dark:bg-[#1e1e2f]">
+        <main className="flex-1 overflow-y-auto scrollbar-hide p-4  dark:bg-[#1e1e2f]">
           {children}
         </main>
       </div>
