@@ -65,7 +65,14 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   height: 100dvh;
-  overflow: hidden;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
 }
 
 .dark {

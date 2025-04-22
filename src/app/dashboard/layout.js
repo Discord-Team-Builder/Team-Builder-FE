@@ -10,11 +10,11 @@ export default function DashboardLayout({ children }) {
       
 <>
       {/* Main Content (right) */}
-      <div className="flex flex-col flex-1">
+      <div className="h-[100dvh] flex flex-col overflow-hidden">
         <DashNavbar />
-        <div className="flex h-[100dvh]">
-        <SidebarNavigation/>
-        <main className="flex-1 overflow-y-auto p-4 bg-gray-100 dark:bg-[#1e1e2f]">
+        <div className="flex flex-1 overflow-hidden">
+        <SidebarNavigation />
+        <main className="flex-1 overflow-y-auto scrollbar-hide p-4 bg-gray-100 dark:bg-[#1e1e2f]">
           {children}
         </main>
       </div>

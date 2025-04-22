@@ -35,7 +35,7 @@ const SidebarNavigation = () =>  {
       {/* Sidebar */}
       <div
         className={cn(
-          "max-h-auto mb-15 bg-discord text-white transition-all duration-300 ease-in-out flex flex-col rounded-tr-[20px] rounded-br-[20px]",
+          "sticky top-0 left-0 h-100dvh  bg-discord text-white transition-all duration-300 ease-in-out flex flex-col rounded-tr-[20px] rounded-br-[20px]",
           isOpen ? "w-64" : "w-16",
         )}
       >
@@ -66,6 +66,7 @@ const SidebarNavigation = () =>  {
                   : "text-white hover:bg-slate-700",
               )}
               onClick={() => setActiveTab(item.id)}
+              title={!isOpen ? item.label : ""}
             >
               <item.icon className={cn("h-5 w-5", !isOpen && "mx-auto")} />
               {isOpen && <span>{item.label}</span>}

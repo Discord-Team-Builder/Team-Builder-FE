@@ -9,7 +9,7 @@ const DashNavbar= () => {
   const navigate = useRouter();
 
   return (
-    <header className="border-b bg-white ">
+    <header className="border-b bg-white sticky top-0 z-10 ">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Users className="h-6 w-6 text-[#5865F2]" />
