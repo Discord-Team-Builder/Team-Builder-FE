@@ -10,6 +10,13 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const ROWS_PER_PAGE = 10;
 
@@ -18,6 +25,8 @@ const Table = ({ headers, data }) => {
   const [filterInputValue, setFilterInputValue] = useState("");
   const [filterSelectValue, setFilterSelectValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const dropdownOptions = useMemo(() => {
     if (!filterKey) return [];
@@ -43,6 +52,15 @@ const Table = ({ headers, data }) => {
   }, [filteredData, currentPage]);
 
   const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
+
+  const handleView = (row) => {
+    setSelectedRow(row);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="w-full space-y-4">
@@ -116,6 +134,9 @@ const Table = ({ headers, data }) => {
                   {header}
                 </th>
               ))}
+              <th className="px-4 py-3 border-b">
+                  Action
+                </th>
             </tr>
           </thead>
           <tbody>
@@ -127,6 +148,15 @@ const Table = ({ headers, data }) => {
                       {row[key] ?? "-"}
                     </td>
                   ))}
+                   <td className="px-4 py-3 border-b">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleView(row)}
+                    >
+                      View
+                    </Button>
+                  </td>
                 </tr>
               ))
             ) : (
@@ -162,6 +192,29 @@ const Table = ({ headers, data }) => {
           </Button>
         </div>
       )}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+          <DialogTitle>
+            {selectedRow?.projects || "Row Details"}
+          </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            
+            <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
+              {JSON.stringify(selectedRow, null, 2)}
+            </pre>
+          </div>
+          <DialogFooter className="flex justify-end gap-4 pt-4">
+            <Button variant="outline" onClick={() => alert("Details Clicked!")}>
+              Details
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
