@@ -17,6 +17,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { CopyIcon, CheckIcon } from 'lucide-react'
+import {exportToJSON, exportToCSV} from '@/hooks/exportdata'
 
 const ROWS_PER_PAGE = 10;
 
@@ -27,6 +29,7 @@ const Table = ({ headers, data }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRow, setSelectedRow] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const dropdownOptions = useMemo(() => {
     if (!filterKey) return [];
@@ -120,9 +123,25 @@ const Table = ({ headers, data }) => {
             </Select>
           )}
         </div>
-        <Button className="bg-discord hover:bg-discord-dark text-white">
-          Create new project +
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => exportToCSV(filteredData, headers)}
+            className="cursor-pointer"
+          >
+            Export CSV
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => exportToJSON(filteredData)}
+            className="cursor-pointer"
+          >
+            Export JSON
+          </Button>
+          <Button className="bg-discord hover:bg-discord-dark text-white cursor-pointer">
+            Create new project +
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-auto rounded-xl border border-gray-200 shadow-sm">
@@ -153,6 +172,7 @@ const Table = ({ headers, data }) => {
                       variant="outline"
                       size="sm"
                       onClick={() => handleView(row)}
+                      className="cursor-pointer"
                     >
                       View
                     </Button>
@@ -199,8 +219,20 @@ const Table = ({ headers, data }) => {
             {selectedRow?.projects || "Row Details"}
           </DialogTitle>
           </DialogHeader>
-          <div className="space-y-2">
-            
+          <div className="space-y-2 relative">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="absolute top-2 right-2 z-10 cursor-pointer flex items-center gap-1"
+            onClick={() => {
+              navigator.clipboard.writeText(JSON.stringify(selectedRow, null, 2));
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+          >
+            {copied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
+            {copied ? "Copied" : "Copy"}
+          </Button>
             <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
               {JSON.stringify(selectedRow, null, 2)}
             </pre>
