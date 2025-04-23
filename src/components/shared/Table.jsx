@@ -22,7 +22,7 @@ import {exportToJSON, exportToCSV} from '@/hooks/exportdata'
 
 const ROWS_PER_PAGE = 10;
 
-const Table = ({ headers, data }) => {
+const Table = ({ headers, data, createproject }) => {
   const [filterKey, setFilterKey] = useState("");
   const [filterInputValue, setFilterInputValue] = useState("");
   const [filterSelectValue, setFilterSelectValue] = useState("");
@@ -138,7 +138,7 @@ const Table = ({ headers, data }) => {
           >
             Export JSON
           </Button>
-          <Button className="bg-discord hover:bg-discord-dark text-white cursor-pointer">
+          <Button onClick={createproject} className="bg-discord hover:bg-discord-dark text-white cursor-pointer">
             Create new project +
           </Button>
         </div>
