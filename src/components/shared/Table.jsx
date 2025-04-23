@@ -1,0 +1,169 @@
+"use client";
+
+import React, { useState, useMemo } from "react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Button } from "../ui/button";
+
+const ROWS_PER_PAGE = 10;
+
+const Table = ({ headers, data }) => {
+  const [filterKey, setFilterKey] = useState("");
+  const [filterInputValue, setFilterInputValue] = useState("");
+  const [filterSelectValue, setFilterSelectValue] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const dropdownOptions = useMemo(() => {
+    if (!filterKey) return [];
+    const uniqueValues = new Set(data.map((row) => row[filterKey]));
+    return [...uniqueValues].filter(Boolean);
+  }, [filterKey, data]);
+
+  const filteredData = useMemo(() => {
+    const value = filterSelectValue || filterInputValue;
+    if (!filterKey || !value) return data;
+
+    return data.filter((row) => {
+      const rowValue = String(row[filterKey] || "").toLowerCase();
+      const filterValue = String(value).toLowerCase();
+      return rowValue.includes(filterValue);
+    });
+  }, [data, filterKey, filterInputValue, filterSelectValue]);
+
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * ROWS_PER_PAGE;
+    const end = start + ROWS_PER_PAGE;
+    return filteredData.slice(start, end);
+  }, [filteredData, currentPage]);
+
+  const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
+
+  return (
+    <div className="w-full space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="flex md:flex-row flex-col gap-2">
+          <Select
+            onValueChange={(val) => {
+              setFilterKey(val);
+              setFilterInputValue("");
+              setFilterSelectValue("");
+              setCurrentPage(1); // reset page
+            }}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue className="text-gray-300" placeholder="Select column to filter" />
+            </SelectTrigger>
+            <SelectContent className="bg-white z-50">
+              {headers.map((header) => (
+                <SelectItem key={header} value={header}>
+                  {header}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {filterKey && (
+            <div className="relative w-full max-w-sm">
+              <Input
+                placeholder={`Search in ${filterKey}`}
+                value={filterInputValue}
+                onChange={(e) => {
+                  setFilterInputValue(e.target.value);
+                  setCurrentPage(1); // reset page
+                }}
+                className="pr-10"
+              />
+            </div>
+          )}
+          {filterKey && dropdownOptions.length > 0 && (
+            <Select
+              value={filterSelectValue}
+              onValueChange={(val) => {
+                setFilterSelectValue(val);
+                setCurrentPage(1); // reset page
+              }}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue className="text-gray-300" placeholder={`Select ${filterKey}`} />
+              </SelectTrigger>
+              <SelectContent className="bg-white z-50">
+                {dropdownOptions.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+        <Button className="bg-discord hover:bg-discord-dark text-white">
+          Create new project +
+        </Button>
+      </div>
+
+      <div className="overflow-auto rounded-xl border border-gray-200 shadow-sm">
+        <table className="min-w-full text-left text-sm text-gray-600">
+          <thead className="bg-gray-100 text-gray-800 font-semibold">
+            <tr>
+              {headers.map((header) => (
+                <th key={header} className="px-4 py-3 border-b">
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedData.length > 0 ? (
+              paginatedData.map((row, idx) => (
+                <tr key={idx} className="hover:bg-gray-50 transition">
+                  {headers.map((key) => (
+                    <td key={key} className="px-4 py-3 border-b">
+                      {row[key] ?? "-"}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={headers.length} className="text-center px-4 py-6">
+                  No data found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-4 items-center mt-4">
+          <Button
+            variant="outline"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+          >
+            Previous
+          </Button>
+          <span className="text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+          >
+            Next
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Table;
