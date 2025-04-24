@@ -14,6 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
+import Teams from '@/components/dashboard/teams/page';
 
 export default function TeamsPage() {
 
@@ -84,6 +85,7 @@ export default function TeamsPage() {
       </div>
       <Button type='button' className="cursor-pointer bg-discord hover:bg-discord-dark text-white" > Create new team + </Button>
       </div>
+      <Teams/>
     </div>
   );
 }
