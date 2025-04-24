@@ -41,7 +41,7 @@ const FeaturesSection= () => {
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className="p-6 rounded-xl border bg-gray-50 hover:shadow-md border outline  transition-shadow"
+              className="p-6 rounded-xl bg-gray-50 hover:shadow-md border outline  transition-shadow"
               style={{
                 borderColor: "rgba(0, 0, 0, 0.1)",       
                 outlineColor: "rgba(0, 0, 0, 0.1)",  
