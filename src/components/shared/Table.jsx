@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { CopyIcon, CheckIcon } from 'lucide-react'
+import { CopyIcon, CheckIcon, Download } from 'lucide-react'
 import {exportToJSON, exportToCSV} from '@/hooks/exportdata'
 
 const ROWS_PER_PAGE = 10;
@@ -67,9 +67,9 @@ const Table = ({ headers, data, createproject }) => {
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex justify-between items-center">
-        <div className="flex md:flex-row flex-col gap-2">
-          <Select
+      <div className="flex md:flex-row flex-col  justify-between items-center">
+        <div className="flex md:flex-row flex-col md:w-auto w-full  gap-2">
+          <Select className="w-full"
             onValueChange={(val) => {
               setFilterKey(val);
               setFilterInputValue("");
@@ -77,7 +77,7 @@ const Table = ({ headers, data, createproject }) => {
               setCurrentPage(1); // reset page
             }}
           >
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="md:w-[200px] w-full">
               <SelectValue className="text-gray-300" placeholder="Select column to filter" />
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
@@ -103,14 +103,14 @@ const Table = ({ headers, data, createproject }) => {
             </div>
           )}
           {filterKey && dropdownOptions.length > 0 && (
-            <Select
+            <Select className="w-full"
               value={filterSelectValue}
               onValueChange={(val) => {
                 setFilterSelectValue(val);
                 setCurrentPage(1); // reset page
               }}
             >
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="md:w-[200px] w-full">
                 <SelectValue className="text-gray-300" placeholder={`Select ${filterKey}`} />
               </SelectTrigger>
               <SelectContent className="bg-white z-50">
@@ -124,7 +124,16 @@ const Table = ({ headers, data, createproject }) => {
           )}
         </div>
         <div className="flex gap-2">
-          <Button
+        <Button
+            variant="outline"
+            onClick={() => exportToCSV(filteredData, headers)}
+            className="cursor-pointer"
+          >
+            <Download />
+            Export CSV
+          </Button>
+          
+          {/* <Button
             variant="outline"
             onClick={() => exportToCSV(filteredData, headers)}
             className="cursor-pointer"
@@ -137,7 +146,7 @@ const Table = ({ headers, data, createproject }) => {
             className="cursor-pointer"
           >
             Export JSON
-          </Button>
+          </Button> */}
           <Button onClick={createproject} className="bg-discord hover:bg-discord-dark text-white cursor-pointer">
             Create new project +
           </Button>

@@ -76,6 +76,15 @@ body {
   scrollbar-width: none;     /* Firefox */
 }
 
+.toggle-checkbox:checked {
+  right: 0;
+  border-color: #2563eb;
+}
+.toggle-label {
+  width: 40px;
+  height: 20px;
+}
+
 .dark {
   --sidebar: hsl(240 5.9% 10%);
   --sidebar-foreground: hsl(240 4.8% 95.9%);
