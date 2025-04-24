@@ -4,6 +4,7 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { useRouter, usePathname  } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import globalState from "@/globalstate/page"
 import {
   Home,
   FolderOpen,
@@ -27,11 +28,11 @@ const SidebarNavigation = () =>  {
   const toggleSidebar = () => {
     setIsOpen(!isOpen)
   }
-
+  const {projectId} = globalState
   const navItems = [
     { id: "/dashboard", icon: Home, label: "Dashboard", path: "/dashboard" },
     { id: "/dashboard/projects", icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
-    { id: "/dashboard/teams", icon: Users, label: "Teams", path: "/dashboard/teams" },
+    { id: "/dashboard/teams", icon: Users, label: "Teams", path: `/dashboard/${projectId}/teams` },
     { id: "/dashboard/accounts", icon: Lock, label: "Accounts", path: "/dashboard/accounts" },
     { id: "/dashboard/settings", icon: Settings, label: "Settings", path: "/dashboard/settings" },
   ]
