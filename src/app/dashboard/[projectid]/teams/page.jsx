@@ -15,6 +15,7 @@ import {
     SelectValue,
   } from "@/components/ui/select"
 import Teams from '@/components/dashboard/teams/page';
+import CreateTeamModal from '@/components/models/createTeam';
 
 export default function TeamsPage() {
 
@@ -39,6 +40,9 @@ export default function TeamsPage() {
     router.push(`/dashboard/${value}/teams`); // dynamic route update
     setSelectedProjectId(value);
   };
+
+  const [open, setOpen] = useState(false);
+  const handleCreateTeam = () => setOpen((prev) => !prev)
 
   return (
     <div >
@@ -83,9 +87,10 @@ export default function TeamsPage() {
 
         
       </div>
-      <Button type='button' className="cursor-pointer bg-discord hover:bg-discord-dark text-white" > Create new team + </Button>
+      <Button onClick={handleCreateTeam} type='button' className="cursor-pointer bg-discord hover:bg-discord-dark text-white" > Create new team + </Button>
       </div>
       <Teams/>
+      <CreateTeamModal open={open} onClose={handleCreateTeam}/>
     </div>
   );
 }
