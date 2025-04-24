@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
-import { useRouter, usePathname  } from "next/navigation"
+import { useRouter, usePathname, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button"
-import globalState from "@/globalstate/page"
+import { useSnapshot } from 'valtio';
+import globalState from '@/globalstate/page';
 import {
   Home,
   FolderOpen,
@@ -17,22 +18,29 @@ import {
 } from "lucide-react"
 
 const SidebarNavigation = () =>  {
+  const snap = useSnapshot(globalState)
   const [isOpen, setIsOpen] = useState(true)
-  const pathname = usePathname()
+  const pathname = usePathname();
+  const params = useParams();
+  const router = useRouter();
+  const projectIdArray = snap.projectId;
+  const currentProjectId = params.projectid?.toString() || projectIdArray[0]?.toString();
   const [activeTab, setActiveTab] = useState(pathname)
-  const router = useRouter()
   
+  useEffect(() => {
+    setActiveTab(pathname);
+  }, [pathname]);
 
   console.log("path:", pathname)
+
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen)
   }
-  const {projectId} = globalState
   const navItems = [
     { id: "/dashboard", icon: Home, label: "Dashboard", path: "/dashboard" },
     { id: "/dashboard/projects", icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
-    { id: "/dashboard/teams", icon: Users, label: "Teams", path: `/dashboard/${projectId}/teams` },
+    { id: `/dashboard/${currentProjectId}/teams`, icon: Users, label: "Teams", path: `/dashboard/${currentProjectId}/teams` },
     { id: "/dashboard/accounts", icon: Lock, label: "Accounts", path: "/dashboard/accounts" },
     { id: "/dashboard/settings", icon: Settings, label: "Settings", path: "/dashboard/settings" },
   ]
@@ -40,7 +48,6 @@ const SidebarNavigation = () =>  {
   const handleNavigation = (id, path) => {
     setActiveTab(id)
     router.push(path)
-    
   }
 
   const handleLogout = ()=>{
