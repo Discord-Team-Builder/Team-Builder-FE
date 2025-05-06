@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import DashNavbar from "@/components/dashboard/dashNavbar";
 import SidebarNavigation from "@/components/dashboard/sidebarNavigation";
-import { getME } from "@/api/APICall";
+import { getGuilds, getME } from "@/api/APICall";
 import { useRouter } from "next/navigation";
 import { ThreeDots } from "react-loader-spinner";
 import globalState from "@/globalstate/page";
@@ -31,6 +31,14 @@ export default function DashboardLayout({ children }) {
             console.error("Error fetching user data:", error);
             setLoading(false); 
           }
+        });
+      getGuilds()
+        .then((response) => {
+          globalState.guilds = response.guilds;
+          console.log("Guilds data:", response);
+        })
+        .catch((error) => {
+          console.error("Error fetching guilds data:", error);
         });
     }, []);
 

@@ -45,24 +45,29 @@ const apiCall = async (endpointKey, options = {}) => {
 
   try {
     const response = await api.request(requestConfig);
-
-    // If response is empty or no data, throw an error
+  
     if (!response || !response.data) {
       throw new Error('No data returned from API');
     }
-
+  
     return response.data;
   } catch (error) {
-    const message = error?.response?.data?.message || error?.message || 'Unknown error occurred';
-
-    throw error;
+    console.error('API Error:', error?.response?.data || error?.message);
+  
+    // Optional: If you want to return a default value instead of throwing
+    if (options.silent) return null;
+  
+    // Optional: You can return a structured response
+    return { error: true, message: error?.response?.data?.message || 'Something went wrong' };
+  
   }
-};
+}
 
 // Specific API functions
 export const getME = () => apiCall('me');
 export const login = () => apiCall('login'); 
 export const logout = () => apiCall('logout'); 
+export const getGuilds = () => apiCall('guilds'); 
 
 // Add more specific functions as needed
 export default apiCall;
