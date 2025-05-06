@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"; 
 import { Label } from "@/components/ui/label";
@@ -9,9 +16,12 @@ import { projectSchema } from "../dashboard/projects/projectSchema";
 import { Description } from "@radix-ui/react-dialog";
 import { CircleCheckBig, InfoIcon} from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import globalState from "@/globalstate/page";
+import { useSnapshot } from "valtio";
 
 
 export default function CreateProjectModal({ open, onClose }) {
+  const snap = useSnapshot(globalState);
   const [step, setStep] = useState(1);
   const [selectedFile, setSelectedFile] = useState(null);
   const [useTextField, setUseTextField] = useState(false);
@@ -29,7 +39,19 @@ export default function CreateProjectModal({ open, onClose }) {
       useTextField: false,
       emailList: "",
       csvFile: null,
+      projectname: "",
+      maxTeam: "",
+      maxMember: "",
+      serverId: "",
     },
+  });
+
+  const filteredGuilds = snap.guilds?.filter(guild => {
+    const permissions = BigInt(guild.permissions); // Use BigInt to avoid issues with large numbers
+    const hasAdmin = (permissions & 0x00000008n) === 0x00000008n;
+    const hasManageServer = (permissions & 0x00000020n) === 0x00000020n;
+  
+    return guild.owner || hasAdmin || hasManageServer;
   });
 
   useEffect(() => {
@@ -122,17 +144,34 @@ export default function CreateProjectModal({ open, onClose }) {
            </div>
 
            <div>
-             <Label className="py-2" htmlFor="serverId">Discord Server ID</Label>
-             <Input
-               id="serverId"
-               type="serverId"
-               {...register("serverId")}
-               className={errors.serverId ? "border-red-500" : ""}
-             />
-             {errors.serverId && (
-               <p className="text-red-500 text-sm mt-1">{errors.serverId.message}</p>
-             )}
-             <Description className="text-gray-400 text-sm font-light p-1">Enable Developer Mode (Settings → Advanced), then right-click the server name and click “Copy Server ID”</Description>
+             <Label className="py-2" htmlFor="serverId">Discord Server</Label>
+             <Select onValueChange={(value) => setValue("serverId", value)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a server" />
+              </SelectTrigger>
+              <SelectContent className="bg-white cursor-pointer">
+                {filteredGuilds?.map((guild) => (
+                  <SelectItem key={guild._id} value={guild.guildId}>
+                    <div className="flex items-center space-x-2">
+                      <img
+                        src={`https://cdn.discordapp.com/icons/${guild.guildId}/${guild.icon}.png`}
+                        alt="server-icon"
+                        className="w-5 h-5 rounded-full"
+                      />
+                      <span>{guild.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+                {errors.serverId && (
+                  <p className="text-red-500 text-sm mt-1">{errors.serverId.message}</p>
+                )}
+                <Description className="text-yellow-600 text-sm font-medium mt-2">
+                  ⚠️ Make sure you have the required permissions to add the bot to a server.
+                  You must either be the Server <strong>Owner</strong>, have the <strong>Administrator</strong> role, or have the <strong>Manage</strong> Server permission.
+                </Description>
+             {/* <Description className="text-gray-400 text-sm font-light p-1">Enable Developer Mode (Settings → Advanced), then right-click the server name and click “Copy Server ID”</Description> */}
            </div>
          </div>
        </form>

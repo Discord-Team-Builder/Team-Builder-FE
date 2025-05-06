@@ -6,15 +6,17 @@ import { LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+
 const Login = () => {
   const navigate = useRouter();
 
   const handleDiscordLogin = () => {
     // In a real implementation, this would redirect to Discord OAuth
-    // For demonstration, we'll simulate a successful login
-    toast.success("Discord authentication successful!");
-    setTimeout(() => navigate.push("/dashboard"), 1000);
-  };
+    window.location.href = `${API_BASE}/api/v1/auth/discord`;
+    // For demonstration, we'll just show a toast
+    toast.success("Redirecting to Discord for authentication...");
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">

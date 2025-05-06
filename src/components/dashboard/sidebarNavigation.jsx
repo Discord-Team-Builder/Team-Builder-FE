@@ -16,6 +16,8 @@ import {
     LogOut,
     Headphones,
 } from "lucide-react"
+import { logout } from "@/api/APICall";
+import Image from "next/image";
 
 const SidebarNavigation = () =>  {
   const snap = useSnapshot(globalState)
@@ -26,6 +28,8 @@ const SidebarNavigation = () =>  {
   const projectIdArray = snap.projectId;
   const currentProjectId = params.projectid?.toString() || projectIdArray[0]?.toString();
   const [activeTab, setActiveTab] = useState(pathname)
+
+  const avatarUrl = `https://cdn.discordapp.com/avatars/${snap.user.discordId}/${snap.user.avatar}.webp?size=80`;
   
   useEffect(() => {
     setActiveTab(pathname);
@@ -51,7 +55,14 @@ const SidebarNavigation = () =>  {
   }
 
   const handleLogout = ()=>{
-    router.push("/")
+    logout()
+      .then((response) => {
+        console.log("Logout response:", response);
+        router.push("/login");
+      })
+      .catch((error) => {
+        console.error("Error logging out:", error);
+      });
   }
 
   return (
@@ -100,8 +111,9 @@ const SidebarNavigation = () =>  {
         <div className="p-4 border-t border-indigo-500/30">
         <div className="flex items-center justify-between">
           {isOpen && <div className="flex items-center gap-2">
-            <Headphones className="h-5 w-5" />
-            <span className="text-sm">UserName#123</span>
+            <Image src={avatarUrl} alt="Avatar" className="h-5 w-5 rounded-full mr-2" width={32}
+  height={32} />
+            <span className="text-sm">{snap.user.username}</span>
           </div>}
           <LogOut onClick={handleLogout} className="h-5 w-5 cursor-pointer" />
         </div>

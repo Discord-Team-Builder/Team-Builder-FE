@@ -4,9 +4,14 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Users, ChevronDown, Search,CircleUserRound } from "lucide-react";
 import { Input } from "../ui/input";
+import { useSnapshot } from 'valtio';
+import globalState from "@/globalstate/page";
+import Image from "next/image";
 
 const DashNavbar= () => {
+  const snap = useSnapshot(globalState)
   const navigate = useRouter();
+  const avatarUrl = `https://cdn.discordapp.com/avatars/${snap.user.discordId}/${snap.user.avatar}.webp?size=80`;
 
   return (
     <header className="border-b bg-white sticky top-0 z-10 ">
@@ -31,8 +36,9 @@ const DashNavbar= () => {
               className="bg-discord hover:bg-discord-dark cursor-pointer text-white"
               onClick={() => navigate.push("#")}
             >
-              <CircleUserRound className="h-4 w-4" />
-              user#123
+              <Image src={avatarUrl} alt="Avatar" className="h-5 w-5 rounded-full mr-2" width={32}
+  height={32} />
+              {snap.user.username}
               <ChevronDown className="h-4 w-4 ml-1" />
             </Button>
           

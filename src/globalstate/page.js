@@ -1,6 +1,8 @@
 import { proxy } from 'valtio';
 
 const globalState = proxy({
+  user: {},
+  guilds: [],
   projects: [
     {
       id: "44591616",
