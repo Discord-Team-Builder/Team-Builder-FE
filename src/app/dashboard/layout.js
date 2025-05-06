@@ -1,14 +1,58 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import DashNavbar from "@/components/dashboard/dashNavbar";
 import SidebarNavigation from "@/components/dashboard/sidebarNavigation";
+import { getME } from "@/api/APICall";
+import { useRouter } from "next/navigation";
+import { ThreeDots } from "react-loader-spinner";
+import globalState from "@/globalstate/page";
 
 
 export default function DashboardLayout({ children }) {
-  return (
-   
-      
-<>
+  const [loading, setLoading] = useState(true);
+    const router = useRouter();
+
+    useEffect(() => {
+      getME()
+        .then((response) => {
+          globalState.user = response.user;
+          console.log("User data:", response);
+          setLoading(false);
+          
+        })
+        .catch((error) => {
+          const status = error?.response?.status;
+         
+          if (status === 401) {
+            setLoading(false);
+            router.replace('/login'); // silently redirect to login
+          } else {
+            console.error("Error fetching user data:", error);
+            setLoading(false); 
+          }
+        });
+    }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <ThreeDots
+          visible={true}
+          height="80"
+          width="80"
+          color="#5865F2"
+          radius="9"
+          ariaLabel="three-dots-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+        />
+      </div>
+    );
+  }
+  // If not loading, render the main layout
+  return (   
+    <>
       {/* Main Content (right) */}
       <div className="h-[100dvh] flex flex-col overflow-hidden">
         <DashNavbar />
