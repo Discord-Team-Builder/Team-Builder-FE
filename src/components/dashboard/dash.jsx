@@ -5,64 +5,44 @@ import {
     CardTitle,
     CardContent,
   } from "@/components/ui/card";
-import { Users, FolderOpen, Settings, Trash2 } from "lucide-react";
+import { Users, FolderOpen, Server, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { getRoleStyles } from "./state";
 import CreateProjectCard from "./createProjectCard";
 import DialogDeleteConfirm from "../models/deleteConfirm";
 import { toast } from 'sonner';
 import showToast from '../shared/showToast';
-
-
-// Sample Data
-const courseData = [
-  {
-    title: "Web developemt Bootcamp",
-    role: "Admin",
-    teams: 7,
-  },
-  {
-    title: "UI/UX Design Course",
-    role: "Leader",
-    teams: 4,
-  },
-  {
-    title: "Backend Bootcamp",
-    role: "Admin",
-    teams: 9,
-  },
-  {
-    title: "AI Mastery",
-    role: "Mentor",
-    teams: 6,
-  },
-];
-  
-  const data = [
-    {
-      title: "Users",
-      icon: Users,
-      number: 1200,
-    },
-    {
-      title: "Projects",
-      icon: FolderOpen,
-      number: 87,
-    },
-    {
-      title: "Settings",
-      icon: Settings,
-      number: 5,
-    },
-  ];
+import { useSnapshot } from 'valtio';
+import globalState from '@/globalstate/page';
   
  const Dash  = () => {
+  const snap = useSnapshot(globalState)
+  const projects = snap.projects?.projects || []; 
+  const servers = snap.guilds || []; 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false); // State for delete loading
 
-  const openDeleteModal = (item) => {
-    setItemToDelete(item);
+  const data = [
+    {
+      title: "Users",
+      icon: Users,
+      number: projects?.teams?.member || 1,
+    },
+    {
+      title: "Projects",
+      icon: FolderOpen,
+      number: projects?.length || 0,
+    },
+    {
+      title: "Servers",
+      icon: Server,
+      number: servers?.length || 0,
+    },
+  ];
+
+  const openDeleteModal = (project) => {
+    setItemToDelete(project);
     setIsDeleteModalOpen(true);
   };
 
@@ -71,16 +51,16 @@ const courseData = [
     setItemToDelete(null);
   };
 
-  const handleDelete = async (item) => {
-    if (item) {
+  const handleDelete = async (project) => {
+    if (project) {
       setIsDeleting(true);
-      console.log("Deleting:", item);
+      console.log("Deleting:", project);
      
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       setIsDeleting(false);
       closeDeleteModal();
-      showToast('success', `${item.title} deleted successfully`)
+      showToast('success', `${project.name} deleted successfully`)
     }
   };
 
@@ -106,7 +86,7 @@ const courseData = [
         <Button className="text-bold text-2xl cursor-pointer bg-gray-100 hover:bg-gray-200">View All</Button>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {courseData.map((course, index) => (
+      {projects.map((project, index) => (
         <Card key={index} className="p-4 space-y-2">
           <CardHeader className="flex flex-row  items-start  p-0">
             <div className="bg-violet-100 p-1.5 rounded-md">
@@ -114,15 +94,15 @@ const courseData = [
             </div>
             <div className="flex flex-col">
               <CardTitle className="text-sm font-semibold leading-tight">
-                {course.title}
+                {project.name}
               </CardTitle>
               <div className=" text-sm text-muted-foreground flex items-center gap-1">
             <Users className="w-4 h-4 opacity-40" />
-            <span className="opacity-40">{course.teams} teams</span>
+            <span className="opacity-40">{project.teams.length } teams</span>
           </div>
             </div>
-            <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full ${getRoleStyles(course.role)}`}>
-              {course.role}
+            <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full ${getRoleStyles(project.role || 'admin')}`}>
+              {project.roles || 'admin'}
             </span>
           </CardHeader>
 
@@ -131,14 +111,14 @@ const courseData = [
           <div className="flex gap-2 pt-2 justify-end">
             <Button
               variant="outline"
-              className="text-blue-600 border-blue-100 hover:bg-blue-50 px-3 h-7 text-sm"
+              className="text-blue-600 cursor-pointer border-blue-100 hover:bg-blue-50 px-3 h-7 text-sm"
             >
               View
             </Button>
             <Button
               variant="outline"
-              className="text-red-600 border-red-100 hover:bg-red-50 px-3 h-7 text-sm"
-              onClick={() => openDeleteModal(course)} 
+              className="text-red-600 cursor-pointer border-red-100 hover:bg-red-50 px-3 h-7 text-sm"
+              onClick={() => openDeleteModal(project)} 
             >
               <Trash2 className="w-3.5 h-3.5 mr-1" />
               Delete
@@ -152,7 +132,7 @@ const courseData = [
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}
         onConfirm={handleDelete}
-        item={itemToDelete}
+        project={itemToDelete}
         isDeleting={isDeleting}
       />
       </>

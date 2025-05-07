@@ -1,6 +1,9 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import APIConfig from './APIConfig';
+import globalState from '@/globalstate/page';
+import { data } from 'autoprefixer';
+import { toast } from 'sonner';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'; // Set in .env
 
@@ -68,8 +71,33 @@ export const getME = () => apiCall('me');
 export const login = () => apiCall('login'); 
 export const logout = () => apiCall('logout'); 
 export const getGuilds = () => apiCall('guilds'); 
-export const createProject = (body) => apiCall('createProject', { body, type: 'body' });
-export const getAllProject = () => apiCall('getAllProjects');
+export const createProject = async (body) => {
+  try {
+   globalState.isLoading = true
+    const data = await apiCall('createProject', { body, type: 'body' })
+    getAllProject();
+    {globalState.isLoading && window.location.reload()}
+    globalState.isLoading = false
+    return data
+  } catch (error){
+    console.error('Failed to create projects', error);
+    toast.error('Failed to create projects');
+    globalState.isLoading = false
+    return null;
+  }
+  };
+export const getAllProject = async () => {
+  try {
+    const data = await apiCall('getAllProjects');
+    globalState.projects = data.projects;
+    globalState.projectId = data.projects.map(project => project._id);
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch projects', error);
+    toast.error('Failed to fetch projects');
+    return null;
+  }
+};
 
 // Add more specific functions as needed
 export default apiCall;

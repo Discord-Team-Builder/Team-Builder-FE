@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Button } from '@/components/ui/button';
 import { Loader2 } from "lucide-react"
 
-const DialogDeleteConfirm = ({ isOpen, onClose, onConfirm, item, isDeleting }) => {
+const DialogDeleteConfirm = ({ isOpen, onClose, onConfirm, project, isDeleting }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -12,7 +12,7 @@ const DialogDeleteConfirm = ({ isOpen, onClose, onConfirm, item, isDeleting }) =
         </DialogHeader>
 
         <div className="text-sm text-muted-foreground">
-          {item ? `Are you sure you want to delete "${item.title}"?` : 'Are you sure you want to delete this item?'}
+          {project ? `Are you sure you want to delete "${project.name}"?` : 'Are you sure you want to delete this item?'}
         </div>
 
         <DialogFooter>
@@ -20,13 +20,15 @@ const DialogDeleteConfirm = ({ isOpen, onClose, onConfirm, item, isDeleting }) =
             variant="outline"
             disabled={isDeleting}
             onClick={onClose}
+            className='cursor-pointer'
           >
             Cancel
           </Button>
           <Button
             variant="destructive"
             disabled={isDeleting}
-            onClick={() => onConfirm(item)}
+            onClick={() => onConfirm(project)}
+            className='cursor-pointer'
           >
             {isDeleting ? (
                 <>
