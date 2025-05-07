@@ -68,6 +68,8 @@ export const getME = () => apiCall('me');
 export const login = () => apiCall('login'); 
 export const logout = () => apiCall('logout'); 
 export const getGuilds = () => apiCall('guilds'); 
+export const createProject = (body) => apiCall('createProject', { body, type: 'body' });
+export const getAllProject = () => apiCall('getAllProjects');
 
 // Add more specific functions as needed
 export default apiCall;

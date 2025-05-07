@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import DashNavbar from "@/components/dashboard/dashNavbar";
 import SidebarNavigation from "@/components/dashboard/sidebarNavigation";
-import { getGuilds, getME } from "@/api/APICall";
+import { getGuilds, getME, getAllProject } from "@/api/APICall";
 import { useRouter } from "next/navigation";
 import { ThreeDots } from "react-loader-spinner";
 import globalState from "@/globalstate/page";
@@ -39,6 +39,13 @@ export default function DashboardLayout({ children }) {
         })
         .catch((error) => {
           console.error("Error fetching guilds data:", error);
+        });
+      getAllProject()
+        .then((response) => {
+          globalState.projects = response;
+        })
+        .catch((error) => {
+          console.error("Error fetching projects:", error);
         });
     }, []);
 
