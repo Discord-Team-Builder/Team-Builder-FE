@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { CopyIcon, CheckIcon, Download } from 'lucide-react'
+import { CopyIcon, CheckIcon, Download, RefreshCwIcon } from 'lucide-react'
 import {exportToJSON, exportToCSV} from '@/hooks/exportdata'
 
 const ROWS_PER_PAGE = 10;
@@ -33,20 +33,23 @@ const Table = ({ headers, data, createproject }) => {
 
   const dropdownOptions = useMemo(() => {
     if (!filterKey) return [];
-    const uniqueValues = new Set(data.map((row) => row[filterKey]));
+    const uniqueValues = new Set(data.projects.map((row) => row[filterKey]));
     return [...uniqueValues].filter(Boolean);
   }, [filterKey, data]);
 
+  const projectsData = data?.projects || [];
+
   const filteredData = useMemo(() => {
     const value = filterSelectValue || filterInputValue;
-    if (!filterKey || !value) return data;
+    if (!filterKey || !value) return projectsData;
 
-    return data.filter((row) => {
+
+    return projectsData.filter((row) => {
       const rowValue = String(row[filterKey] || "").toLowerCase();
       const filterValue = String(value).toLowerCase();
       return rowValue.includes(filterValue);
     });
-  }, [data, filterKey, filterInputValue, filterSelectValue]);
+  }, [projectsData, filterKey, filterInputValue, filterSelectValue]);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * ROWS_PER_PAGE;
@@ -54,7 +57,7 @@ const Table = ({ headers, data, createproject }) => {
     return filteredData.slice(start, end);
   }, [filteredData, currentPage]);
 
-  const totalPages = Math.ceil(filteredData.length / ROWS_PER_PAGE);
+  const totalPages = Math.ceil((filteredData?.length || 0) / ROWS_PER_PAGE);
 
   const handleView = (row) => {
     setSelectedRow(row);
@@ -63,6 +66,22 @@ const Table = ({ headers, data, createproject }) => {
 
   const handleDelete = () => {
     setIsModalOpen(false);
+  };
+
+  const headerMap = {
+    "s.no": "s.no",
+    "projects": "name",
+    "Server Id": "guildId",
+    "max team": "maxTeams",
+    "total team": "teams.length",
+    "createdBy": "createdBy"
+  };
+
+  const clearFilters = () => {
+    setFilterKey("");
+    setFilterInputValue("");
+    setFilterSelectValue("");
+    setCurrentPage(1);
   };
 
   return (
@@ -81,11 +100,15 @@ const Table = ({ headers, data, createproject }) => {
               <SelectValue className="text-gray-300" placeholder="Select column to filter" />
             </SelectTrigger>
             <SelectContent className="bg-white z-50">
-              {headers.map((header) => (
-                <SelectItem key={header} value={header}>
+            {headers.map((header) => {
+              if (header === "s.no") return null;
+              const dataKey = headerMap[header];
+              return (
+                <SelectItem key={header} value={dataKey}>
                   {header}
                 </SelectItem>
-              ))}
+              );
+            })}
             </SelectContent>
           </Select>
 
@@ -123,11 +146,19 @@ const Table = ({ headers, data, createproject }) => {
             </Select>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex  sm:justify-center md:flex-nowrap flex-wrap gap-2">
+        <Button
+            variant="outline"
+            onClick={clearFilters}
+            disabled={!filterKey && !filterInputValue && !filterSelectValue}
+            className="cursor-pointer px-2 sm:px-4"
+          >
+            <RefreshCwIcon/>
+          </Button>
         <Button
             variant="outline"
             onClick={() => exportToCSV(filteredData, headers)}
-            className="cursor-pointer"
+            className="cursor-pointer px-2 sm:px-4"
           >
             <Download />
             Export CSV
@@ -147,7 +178,7 @@ const Table = ({ headers, data, createproject }) => {
           >
             Export JSON
           </Button> */}
-          <Button onClick={createproject} className="bg-discord hover:bg-discord-dark text-white cursor-pointer">
+          <Button onClick={createproject} className=" bg-discord hover:bg-discord-dark text-white cursor-pointer px-2 sm:px-4">
             Create new project +
           </Button>
         </div>
@@ -171,11 +202,26 @@ const Table = ({ headers, data, createproject }) => {
             {paginatedData.length > 0 ? (
               paginatedData.map((row, idx) => (
                 <tr key={idx} className="hover:bg-gray-50 transition">
-                  {headers.map((key) => (
-                    <td key={key} className="px-4 py-3 border-b">
-                      {row[key] ?? "-"}
-                    </td>
-                  ))}
+                 {headers.map((header, index) => {
+                    let value;
+
+                    if (header === "s.no") {
+                      value = idx + 1;
+                    } else {
+                      const keyPath = headerMap[header];
+                      if (keyPath) {
+                        value = keyPath.split('.').reduce((acc, part) => acc?.[part], row);
+                      } else {
+                        value = "-";
+                      }
+                    }
+
+                    return (
+                      <td key={index} className="px-4 py-3 border-b">
+                        {value ?? "-"}
+                      </td>
+                    );
+                  })}
                    <td className="px-4 py-3 border-b">
                     <Button
                       variant="outline"
