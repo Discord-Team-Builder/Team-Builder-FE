@@ -1,15 +1,20 @@
 "use client"
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import useAuthorised from "@/lib/isAuthorised";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 const Login = () => {
   const navigate = useRouter();
+
+  useAuthorised();
+
+  
 
   const handleDiscordLogin = () => {
     // In a real implementation, this would redirect to Discord OAuth

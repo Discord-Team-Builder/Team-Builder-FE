@@ -18,6 +18,7 @@ import { CircleCheckBig, InfoIcon} from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import globalState from "@/globalstate/page";
 import { useSnapshot } from "valtio";
+import { createProject, getAllProject } from "@/api/APICall";
 
 
 export default function CreateProjectModal({ open, onClose }) {
@@ -39,10 +40,10 @@ export default function CreateProjectModal({ open, onClose }) {
       useTextField: false,
       emailList: "",
       csvFile: null,
-      projectname: "",
-      maxTeam: "",
-      maxMember: "",
-      serverId: "",
+      projectName: "",
+      maxTeams: "",
+      maxMembersPerTeam: "",
+      guildId: "",
     },
   });
 
@@ -62,7 +63,37 @@ export default function CreateProjectModal({ open, onClose }) {
  
   const onSubmit = (data) => {
     console.log('Form Data:', data);
-  
+    const formData = new FormData();
+    formData.append("projectName", data.projectName);
+    formData.append("maxTeams", data.maxTeams);
+    formData.append("maxMembersPerTeam", data.maxMembersPerTeam);
+    formData.append("guildId", data.guildId);
+    if (data.csvFile) {
+      formData.append("csvFile", data.csvFile);
+    }
+    // Send formData to your API endpoint
+    console.log("Form Data to be sent:", formData);
+    // Example API call
+    createProject(formData)
+      .then(response => {
+        console.log("Project created successfully:", response);
+        onClose(); // Close the modal after successful submission
+      })
+      .catch(error => {
+        console.error("Error creating project:", error);
+      });
+    // Reset the form after submission
+    setValue("projectName", "");
+    setValue("maxTeams", "");
+    setValue("maxMembersPerTeam", "");
+    setValue("guildId", "");   
+    setValue("emailList", "");
+    setValue("csvFile", null);
+    setSelectedFile(null);
+    setUseTextField(false);
+    setIsBotConnected(false);
+    setStep(1); // Reset to step 1
+    onClose(); // Close the modal
   };
 
   const handleFileChange = (e) => {
@@ -74,7 +105,7 @@ export default function CreateProjectModal({ open, onClose }) {
   };
 
   const formValues = watch();
-  const isStep1Complete = formValues.projectname && formValues.maxTeam && formValues.maxMember && formValues.serverId;
+  const isStep1Complete = formValues.projectName && formValues.maxTeams && formValues.maxMembersPerTeam && formValues.guildId;
   const isStep2Complete = useTextField
   ? formValues.emailList && !errors.emailList
   : selectedFile && !errors.csvFile;
@@ -105,47 +136,47 @@ export default function CreateProjectModal({ open, onClose }) {
            
 
            <div>
-             <Label className="py-2" htmlFor="projectname">Project Name</Label>
+             <Label className="py-2" htmlFor="projectName">Project Name</Label>
              <Input
-               id="projectname"
-               type="projectname"
-               {...register("projectname")}
-               className={errors.projectname ? "border-red-500" : ""}
+               id="projectName"
+               type="projectName"
+               {...register("projectName")}
+               className={errors.projectName ? "border-red-500" : ""}
              />
-             {errors.projectname && (
-               <p className="text-red-500 text-sm mt-1">{errors.projectname.message}</p>
+             {errors.projectName && (
+               <p className="text-red-500 text-sm mt-1">{errors.projectName.message}</p>
              )}
            </div>
 
            <div>
-             <Label className="py-2" htmlFor="maxTeam">Number Of Teams</Label>
+             <Label className="py-2" htmlFor="maxTeams">Number Of Teams</Label>
              <Input
-               id="maxTeam"
+               id="maxTeams"
                type="number"
-               {...register("maxTeam")}
-               className={errors.maxTeam ? "border-red-500" : ""}
+               {...register("maxTeams")}
+               className={errors.maxTeams ? "border-red-500" : ""}
              />
-             {errors.maxTeam&& (
-               <p className="text-red-500 text-sm mt-1">{errors.maxTeam.message}</p>
+             {errors.maxTeams&& (
+               <p className="text-red-500 text-sm mt-1">{errors.maxTeams.message}</p>
              )}
            </div>
 
            <div>
-             <Label className="py-2" htmlFor="maxMember">Max Member Of Teams</Label>
+             <Label className="py-2" htmlFor="maxMembersPerTeam">Max Member Of Teams</Label>
              <Input
-               id="maxMember"
+               id="maxMembersPerTeam"
                type="number"
-               {...register("maxMember")}
-               className={errors.maxMember ? "border-red-500" : ""}
+               {...register("maxMembersPerTeam")}
+               className={errors.maxMembersPerTeam ? "border-red-500" : ""}
              />
-             {errors.maxMember && (
-               <p className="text-red-500 text-sm mt-1">{errors.maxMember.message}</p>
+             {errors.maxMembersPerTeam && (
+               <p className="text-red-500 text-sm mt-1">{errors.maxMembersPerTeam.message}</p>
              )}
            </div>
 
            <div>
-             <Label className="py-2" htmlFor="serverId">Discord Server</Label>
-             <Select onValueChange={(value) => setValue("serverId", value)}>
+             <Label className="py-2" htmlFor="guildId">Discord Server</Label>
+             <Select onValueChange={(value) => setValue("guildId", value)}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a server" />
               </SelectTrigger>
@@ -164,8 +195,8 @@ export default function CreateProjectModal({ open, onClose }) {
                 ))}
               </SelectContent>
             </Select>
-                {errors.serverId && (
-                  <p className="text-red-500 text-sm mt-1">{errors.serverId.message}</p>
+                {errors.guildId && (
+                  <p className="text-red-500 text-sm mt-1">{errors.guildId.message}</p>
                 )}
                 <Description className="text-yellow-600 text-sm font-medium mt-2">
                   ⚠️ Make sure you have the required permissions to add the bot to a server.
@@ -274,7 +305,7 @@ export default function CreateProjectModal({ open, onClose }) {
             Skip
           </Button>}
           <Button
-            type="button"
+            type="submit"
             disabled={
               (step === 1 && (!isStep1Complete || Object.keys(errors).length > 0)) ||
               (step === 2 && !isStep2Complete) ||
@@ -289,6 +320,7 @@ export default function CreateProjectModal({ open, onClose }) {
             }`}
             onClick={() => {
               if (step === 3 && isBotConnected) {
+                onSubmit(formValues); // Call the submit function
                 onClose(); // Close the modal
               } else {
                 setStep((prev) => Math.min(prev + 1, 3));
@@ -297,6 +329,7 @@ export default function CreateProjectModal({ open, onClose }) {
           >
             Continue
           </Button>
+         
           </div>
           
         </div>

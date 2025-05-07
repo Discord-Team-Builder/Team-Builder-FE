@@ -1,14 +1,14 @@
 import * as yup from "yup";
 
 export const projectSchema = yup.object({
-  projectname: yup.string().required("Project Name is required"),
-  serverId: yup.string().required("Server ID is required"),
-  maxTeam: yup
+  projectName: yup.string().required("Project Name is required"),
+  guildId: yup.string().required("Server ID is required"),
+  maxTeams: yup
     .number()
     .typeError("Max team value is required")
     .required("Required")
     .min(1, "Min 1"),
-  maxMember: yup
+  maxMembersPerTeam: yup
     .number()
     .typeError("Max member per team value is required")
     .required("Required")
