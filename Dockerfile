@@ -19,6 +19,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Debugging step to check files in /app
+RUN ls -alh /app
+
 # Run the build process and enable verbose logging to help debug issues
 RUN npm run build --verbose
 
@@ -38,9 +41,8 @@ COPY --from=builder /app/next.config.js ./next.config.js
 COPY --from=builder /app/tailwind.config.js ./tailwind.config.js
 COPY --from=builder /app/postcss.config.js ./postcss.config.js
 COPY --from=builder /app/styles ./styles
-COPY --from=builder /app/app ./app
-COPY --from=builder /app/pages ./pages
-COPY --from=builder /app/components ./components
+COPY --from=builder /app/src/app ./src/app
+COPY --from=builder /app/src/components ./src/components  # Updated path
 COPY package.json ./
 
 # Expose port
