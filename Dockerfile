@@ -7,22 +7,20 @@ WORKDIR /app
 # Install necessary packages for tailwind & build tools
 RUN apk add --no-cache libc6-compat
 
-# Install dependencies
+# Install all dependencies (including dev dependencies)
 COPY package.json package-lock.json* ./
-RUN npm install --omit=dev --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
 # Build the application
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Copy dependencies from the previous stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Disable ESLint plugin during build to prevent devDependency issues
-ENV NEXT_DISABLE_ESLINT_PLUGIN=true
-
-# Build the Next.js app
-RUN npm run build
+# Run the build process and enable verbose logging to help debug issues
+RUN npm run build --verbose
 
 # Production image
 FROM node:20-alpine AS runner
@@ -30,8 +28,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy production dependencies
+# Copy production dependencies from the deps stage
 COPY --from=deps /app/node_modules ./node_modules
+
+# Copy the necessary files from the build stage
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/next.config.js ./next.config.js
