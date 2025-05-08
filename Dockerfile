@@ -37,8 +37,8 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy the necessary files from the build stage
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/next.config.js ./next.config.js
-COPY --from=builder /app/postcss.config.js ./postcss.config.js
+COPY --from=builder /app/next.config.js ./next.config.mjs
+COPY --from=builder /app/postcss.config.js ./postcss.config.mjs
 COPY --from=builder /app/src/app ./src/app
 COPY --from=builder /app/src/components ./src/components  
 COPY package.json ./
