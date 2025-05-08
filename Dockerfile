@@ -18,6 +18,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Disable ESLint plugin during build to prevent devDependency issues
+ENV NEXT_DISABLE_ESLINT_PLUGIN=true
+
 # Build the Next.js app
 RUN npm run build
 
