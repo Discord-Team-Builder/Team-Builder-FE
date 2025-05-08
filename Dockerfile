@@ -38,11 +38,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/next.config.js ./next.config.js
-COPY --from=builder /app/tailwind.config.js ./tailwind.config.js
 COPY --from=builder /app/postcss.config.js ./postcss.config.js
-COPY --from=builder /app/styles ./styles
 COPY --from=builder /app/src/app ./src/app
-COPY --from=builder /app/src/components ./src/components  # Updated path
+COPY --from=builder /app/src/components ./src/components  
 COPY package.json ./
 
 # Expose port
