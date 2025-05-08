@@ -41,6 +41,9 @@ COPY --from=builder /app/next.config.mjs ./next.config.mjs
 COPY --from=builder /app/postcss.config.mjs ./postcss.config.mjs
 COPY --from=builder /app/src/app ./src/app
 COPY --from=builder /app/src/components ./src/components  
+COPY --from=builder /app/src/globalstate ./src/globalstate
+COPY --from=builder /app/src/hooks ./src/hooks
+COPY --from=builder /app/src/lib ./src/lib 
 COPY package.json ./
 
 # Expose port
