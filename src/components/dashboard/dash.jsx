@@ -10,6 +10,7 @@ import { Button } from "../ui/button";
 import { getRoleStyles } from "./state";
 import CreateProjectCard from "./createProjectCard";
 import DialogDeleteConfirm from "../models/deleteConfirm";
+import { deleteProject } from '@/api/APICall';
 import { toast } from 'sonner';
 import showToast from '../shared/showToast';
 import { useSnapshot } from 'valtio';
@@ -55,12 +56,27 @@ import globalState from '@/globalstate/page';
     if (project) {
       setIsDeleting(true);
       console.log("Deleting:", project);
+      console.log("Project ID:", project._id);
      
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
+      deleteProject(project._id)
+        .then((response) => {
+          console.log("Project deleted successfully:", response);
+          showToast('success', `${project.name} deleted successfully`)
+        })
+        .catch((error) => {
+          console.error("Error deleting project:", error);
+          showToast('error', `Failed to delete ${project.name}`)
+        });
+      setItemToDelete(null);
+      setIsDeleteModalOpen(false);
       setIsDeleting(false);
       closeDeleteModal();
-      showToast('success', `${project.name} deleted successfully`)
+      // Optionally, you can refresh the projects list or perform any other action after deletion
+      globalState.projects = globalState.projects.filter((p) => p.projectId !== project.projectId);
+      globalState.projectId = globalState.projectId.filter((p) => p !== project.projectId);
+      globalState.isLoading = true
+      window.location.reload()
+      globalState.isLoading = false
     }
   };
 

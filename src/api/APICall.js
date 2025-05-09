@@ -5,7 +5,7 @@ import globalState from '@/globalstate/page';
 import { data } from 'autoprefixer';
 import { toast } from 'sonner';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'; // Set in .env
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'; // Set in .env
 
 // Create Axios instance
 const api = axios.create({
@@ -28,9 +28,21 @@ const apiCall = async (endpointKey, options = {}) => {
   // Fetch token from cookies (if not HTTP-only, otherwise withCredentials handles it)
   const token = Cookies.get('token') || options.token;
 
+  // Replace route parameters with actual values
+  let url = route;
+  const paramMatches = route.match(/:\w+/g) || [];
+  for (const param of paramMatches) {
+    const paramName = param.slice(1); // Remove ':' (e.g., :id -> id)
+    if (options[paramName]) {
+      url = url.replace(param, options[paramName]);
+    } else {
+      throw new Error(`Missing value for URL parameter ${param} in ${endpointKey}`);
+    }
+  }
+
   // Prepare request config
   const requestConfig = {
-    url: route,
+    url,
     method: method.toUpperCase(),
     headers: {
       ...(token && !api.defaults.withCredentials && { Authorization: `Bearer ${token}` }), // Skip if HTTP-only
@@ -54,16 +66,33 @@ const apiCall = async (endpointKey, options = {}) => {
     }
   
     return response.data;
-  } catch (error) {
-    console.error('API Error:', error?.response?.data || error?.message);
+  }catch (error) {
+  const errorData = error?.response?.data || {};
+  const errorMessage = 
+    errorData.message ||
+    errorData.error ||
+    error?.message ||
+    error?.response?.statusText ||
+    'Unknown API error';
+
+  console.error('API Error:', {
+    status: error?.response?.status,
+    url: error?.config?.url,
+    method: error?.config?.method,
+    message: errorMessage,
+    details: errorData.errors || null
+  });
+
+  if (options.silent) return null;
   
-    // Optional: If you want to return a default value instead of throwing
-    if (options.silent) return null;
-  
-    // Optional: You can return a structured response
-    return { error: true, message: error?.response?.data?.message || 'Something went wrong' };
-  
-  }
+  // Return structured error response
+  return { 
+    error: true, 
+    status: error?.response?.status,
+    message: errorMessage,
+    details: errorData.errors || null
+  };
+}
 }
 
 // Specific API functions
@@ -71,6 +100,8 @@ export const getME = () => apiCall('me');
 export const login = () => apiCall('login'); 
 export const logout = () => apiCall('logout'); 
 export const getGuilds = () => apiCall('guilds'); 
+
+// Create a new project
 export const createProject = async (body) => {
   try {
    globalState.isLoading = true
@@ -86,6 +117,8 @@ export const createProject = async (body) => {
     return null;
   }
   };
+
+// Get all projects
 export const getAllProject = async () => {
   try {
     const data = await apiCall('getAllProjects');
@@ -95,6 +128,19 @@ export const getAllProject = async () => {
   } catch (error) {
     console.error('Failed to fetch projects', error);
     toast.error('Failed to fetch projects');
+    return null;
+  }
+};
+
+// Delete project
+export const deleteProject = async (projectId) => {
+  try {
+    console.log("Deleting project with ID:", projectId);
+    const data = await apiCall('deleteProject', { id: projectId });
+    return data;
+  } catch (error) {
+    console.error('Failed to delete project', error);
+    toast.error('Failed to delete project');
     return null;
   }
 };
