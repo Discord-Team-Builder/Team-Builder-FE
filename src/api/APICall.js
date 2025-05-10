@@ -5,6 +5,8 @@ import globalState from '@/globalstate/page';
 import { data } from 'autoprefixer';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
+import { getProjectsData } from '@/lib/getProjectsData';
+import { decreaseLoader, increaseLoader } from '@/globalstate/loaderState';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'; // Set in .env
 
@@ -60,6 +62,7 @@ const apiCall = async (endpointKey, options = {}) => {
   }
 
   try {
+    increaseLoader();
     const response = await api.request(requestConfig);
   
     if (!response || !response.data) {
@@ -87,6 +90,8 @@ const apiCall = async (endpointKey, options = {}) => {
   
   // 👇 Only throw for critical APIs (like login)
   throw new Error(errorMessage);
+} finally {
+  decreaseLoader();
 }
 }
 
@@ -157,9 +162,11 @@ export const getGuilds = async () => {
 export const createProject = async (body) => {
   try {
     const data = await apiCall('createProject', { body, type: 'body' })
-    const currentProjects = Array.isArray(globalState.projects) ? globalState.projects : [];
-    globalState.projects = [...currentProjects, data?.project];
-    globalState.projectId = [...currentProjects, data?.project._id];
+    const newProjects = data?.project || []; 
+    const currentProjects = getProjectsData(globalState.projects); 
+    globalState.projects = [...currentProjects, newProjects];
+    globalState.projectId = [...globalState.projectId || [], newProjects._id];
+    
     return data
   } catch (error){
     console.error('Failed to create projects', error);
@@ -172,10 +179,9 @@ export const createProject = async (body) => {
 export const getAllProject = async () => {
   try {
     const data = await apiCall('getAllProjects');
-    console.log("Fetched projects:", data);
     const currentProjects = Array.isArray(globalState.projects) ? globalState.projects : [];
-    globalState.projects = [...currentProjects, data?.projects];
-    globalState.projectId = [...currentProjects, data?.projects.map(project => project._id)];
+    globalState.projects = [...currentProjects, ...(data?.projects || [])];
+    globalState.projectId = [...currentProjects, ...(data?.projects.map(project => project._id) || [])];
     return data;
   } catch (error) {
     console.error('Failed to fetch projects', error);
@@ -187,9 +193,13 @@ export const getAllProject = async () => {
 // Delete project
 export const deleteProject = async (projectId) => {
   try {
-    console.log("Deleting project with ID:", projectId);
+
     const data = await apiCall('deleteProject', { id: projectId });
-    getAllProject();
+   
+    const projectData = getProjectsData(globalState.projects);
+    globalState.projects = projectData.filter(project => project._id !== projectId);
+    globalState.projectId = globalState.projectId.filter(id => id !== projectId);
+   
     return data;
   } catch (error) {
     console.error('Failed to delete project', error);

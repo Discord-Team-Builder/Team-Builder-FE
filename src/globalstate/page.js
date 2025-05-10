@@ -8,7 +8,8 @@ const globalState = proxy({
   projects: [],
   projectId: [],
   teams:[],
-  isLoading: false,
+  activeApiCount: 0,
+  isLoader: false 
 });
 
 export default globalState;
