@@ -10,6 +10,9 @@ import { CircleCheckBig, InfoIcon} from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { teamSchema } from "../dashboard/teams/teamSchema";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
+import { getProjectsData } from "@/lib/getProjectsData";
+import {useSnapshot} from 'valtio';
+import globalState from '@/globalstate/page';
 
 const teamData = [
     { id: 1, name: 'Team Alpha', value: 'alpha' },
@@ -20,6 +23,8 @@ const teamData = [
 
 
 export default function CreateTeamModal({ open, onClose }) {
+  const snap = useSnapshot(globalState)
+  const projects = getProjectsData(snap.projects);
   const [step, setStep] = useState(1);
   const [selectedFile, setSelectedFile] = useState(null);
   const [useTextField, setUseTextField] = useState(true);
@@ -97,9 +102,9 @@ export default function CreateTeamModal({ open, onClose }) {
                 <SelectValue placeholder="Select a project" />
                 </SelectTrigger>
                 <SelectContent className=' z-50 bg-white'>
-                {teamData.map((team) => (
-                    <SelectItem key={team.id} value={team.value}>
-                    {team.name}
+                {projects.map((p) => (
+                    <SelectItem key={p._id} value={p.name}>
+                    {p.name}
                     </SelectItem>
                 ))}
                 </SelectContent>
