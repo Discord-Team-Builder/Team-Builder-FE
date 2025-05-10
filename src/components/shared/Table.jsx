@@ -38,8 +38,8 @@ const Table = ({ headers, data, createproject }) => {
     return [...uniqueValues].filter(Boolean);
   }, [filterKey, data]);
 
-  const projectsData = data?.projects || [];
-
+ const projectsData = data?.projects || [];
+console.log("projectsData", projectsData)
   const filteredData = useMemo(() => {
     const value = filterSelectValue || filterInputValue;
     if (!filterKey || !value) return projectsData;
@@ -93,7 +93,9 @@ const Table = ({ headers, data, createproject }) => {
     setFilterSelectValue("");
     setCurrentPage(1);
   };
-
+console.log("filteredData", filteredData)
+console.log("paginatedData", paginatedData)
+  console.log("data", data)
   return (
     <div className="w-full space-y-4">
       <div className="flex md:flex-row flex-col  justify-between items-center">

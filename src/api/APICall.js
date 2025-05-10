@@ -4,6 +4,7 @@ import APIConfig from './APIConfig';
 import globalState from '@/globalstate/page';
 import { data } from 'autoprefixer';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'; // Set in .env
 
@@ -68,53 +69,102 @@ const apiCall = async (endpointKey, options = {}) => {
     return response.data;
   }catch (error) {
   const errorData = error?.response?.data || {};
-  const errorMessage = 
-    errorData.message ||
-    errorData.error ||
-    error?.message ||
-    error?.response?.statusText ||
-    'Unknown API error';
+  const errorMessage = errorData.message || error?.message || 'API request failed';
 
-  console.error('API Error:', {
-    status: error?.response?.status,
-    url: error?.config?.url,
-    method: error?.config?.method,
-    message: errorMessage,
-    details: errorData.errors || null
-  });
+  // Development mein hi log karo
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[API Error]', { 
+      endpoint: endpointKey,
+      message: errorMessage,
+      status: error?.response?.status 
+    });
+  }
 
-  if (options.silent) return null;
+  // 👇 Silent mode (default) - return null instead of throwing
+  if (options.silent !== false) {
+    return null;
+  }
   
-  // Return structured error response
-  return { 
-    error: true, 
-    status: error?.response?.status,
-    message: errorMessage,
-    details: errorData.errors || null
-  };
+  // 👇 Only throw for critical APIs (like login)
+  throw new Error(errorMessage);
 }
 }
 
 // Specific API functions
-export const getME = () => apiCall('me');
-export const login = () => apiCall('login'); 
-export const logout = () => apiCall('logout'); 
-export const getGuilds = () => apiCall('guilds'); 
+export const getStatus = async () => {
+  try {
+    const data = await apiCall('status');
+    if (data?.isLoggedIn) {
+      globalState.isLoggedIn = true;
+    } else {
+      globalState.isLoggedIn = false;
+      globalState.user = null;
+      globalState.guilds = [];
+    }
+    return data;
+  }
+  catch (error) {
+    if (error.status === 401) {
+      toast.error('Please login to continue');
+    } else {
+      toast.error(error.message); 
+    }
+    
+  }
+};
+export const getME = async () => {
+ try {
+    const data = await apiCall('me');
+    return data;
+  }catch (error) {
+    console.error('Failed to fetch user data', error);
+    toast.error('Failed to fetch user data');
+    
+  }
+};
+export const login = async () => {
+  try{
+    const data = await apiCall('login');
+    return data;
+  }catch (error) {
+    console.error('Failed to login', error);
+    toast.error('Failed to login');
+    
+  }
+}
+export const logout = async () => {
+  try{
+    const data = await apiCall('logout'); 
+    return data;
+  }catch (error) {
+    console.error('Failed to logout', error);
+    toast.error('Failed to logout');
+    
+  }
+}
+export const getGuilds = async () => {
+  try{
+    const data = await apiCall('guilds'); 
+    return data;
+  }catch (error) {
+    console.error('Failed to fetch guilds', error);
+    toast.error('Failed to fetch guilds');
+    
+  }
+}
 
 // Create a new project
 export const createProject = async (body) => {
   try {
-   globalState.isLoading = true
     const data = await apiCall('createProject', { body, type: 'body' })
-    getAllProject();
-    {globalState.isLoading && window.location.reload()}
-    globalState.isLoading = false
+    const currentProjects = Array.isArray(globalState.projects) ? globalState.projects : [];
+    globalState.projects = [...currentProjects, data?.project];
+    globalState.projectId = [...currentProjects, data?.project._id];
     return data
   } catch (error){
     console.error('Failed to create projects', error);
     toast.error('Failed to create projects');
-    globalState.isLoading = false
-    return null;
+    
   }
   };
 
@@ -122,13 +172,15 @@ export const createProject = async (body) => {
 export const getAllProject = async () => {
   try {
     const data = await apiCall('getAllProjects');
-    globalState.projects = data.projects;
-    globalState.projectId = data.projects.map(project => project._id);
+    console.log("Fetched projects:", data);
+    const currentProjects = Array.isArray(globalState.projects) ? globalState.projects : [];
+    globalState.projects = [...currentProjects, data?.projects];
+    globalState.projectId = [...currentProjects, data?.projects.map(project => project._id)];
     return data;
   } catch (error) {
     console.error('Failed to fetch projects', error);
     toast.error('Failed to fetch projects');
-    return null;
+    
   }
 };
 
@@ -137,11 +189,12 @@ export const deleteProject = async (projectId) => {
   try {
     console.log("Deleting project with ID:", projectId);
     const data = await apiCall('deleteProject', { id: projectId });
+    getAllProject();
     return data;
   } catch (error) {
     console.error('Failed to delete project', error);
     toast.error('Failed to delete project');
-    return null;
+    
   }
 };
 

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { FilePlus } from "lucide-react";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import CreateProjectModal from '@/components/models/createProject';
 
 const CreateProjectCard = () => {
   const [open, setOpen] = useState(false);
+  const handleCreateProject = () => setOpen((prev) => !prev)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -23,23 +24,7 @@ const CreateProjectCard = () => {
         <DialogHeader>
           <DialogTitle>Create New Project</DialogTitle>
         </DialogHeader>
-
-        <form className="space-y-4">
-          <input
-            name="project-name"
-            type="text"
-            placeholder="Project Name"
-            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-discord"
-          />
-          <textarea
-            name="project-description"
-            placeholder="Project Description"
-            className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-discord"
-          />
-          <Button type="submit" className="w-full">
-            Create
-          </Button>
-        </form>
+        <CreateProjectModal open={open} onClose={handleCreateProject} />
       </DialogContent>
     </Dialog>
   );

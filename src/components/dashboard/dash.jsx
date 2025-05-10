@@ -71,12 +71,7 @@ import globalState from '@/globalstate/page';
       setIsDeleteModalOpen(false);
       setIsDeleting(false);
       closeDeleteModal();
-      // Optionally, you can refresh the projects list or perform any other action after deletion
-      globalState.projects = globalState.projects.filter((p) => p.projectId !== project.projectId);
-      globalState.projectId = globalState.projectId.filter((p) => p !== project.projectId);
-      globalState.isLoading = true
-      window.location.reload()
-      globalState.isLoading = false
+      
     }
   };
 

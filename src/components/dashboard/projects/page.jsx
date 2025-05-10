@@ -9,14 +9,15 @@ const headers = ["s.no", "projects", "Server Id", "max team", "total team", "cre
 
 
 const Projects = () => {
-    const snap = useSnapshot(globalState)
-    const projects = snap.projects
+    const {projects} = useSnapshot(globalState)
     const [open, setOpen] = useState(false);
     const handleCreateProject = () => setOpen((prev) => !prev)
+    console.log("projects data:", projects?.projects || []); 
+    console.log("projects length:", projects?.projects?.length || 0);
   
   return (
     <div>
-    <Table headers={headers} data={projects} createproject={handleCreateProject}  />
+    <Table key={projects.projects.length}  headers={headers} data={projects} createproject={handleCreateProject}  />
     <CreateProjectModal open={open} onClose={handleCreateProject} />
     </div>
   )

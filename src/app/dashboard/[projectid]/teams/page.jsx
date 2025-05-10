@@ -24,10 +24,10 @@ export default function TeamsPage() {
   const pathname = useParams()
   const projectid = pathname.projectid
   const snap = useSnapshot(globalState)
-  const projects = snap.projects
+  const projects = snap.projects.projects || []
   const [selectedProjectId, setSelectedProjectId] =  useState(projects[0]?.id || "");
 
-  const project = snap.projects.find((p) => p.id === projectid)
+  const project = snap.projects.projects.find((p) => p.id === projectid)
   const teams = project?.teams || []
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function TeamsPage() {
         <SelectGroup>
           <SelectLabel>Projects</SelectLabel>
           {projects.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
+                <SelectItem key={p._id} value={p._id}>
                   {p.name}
                 </SelectItem>
               ))}

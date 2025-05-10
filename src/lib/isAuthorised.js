@@ -1,26 +1,31 @@
 "use client";
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { getStatus } from "@/api/APICall";
 
-export default function useAuthorised() {
+export default function useAuthorised(redirect = true) {
   const router = useRouter();
-  const getCookie = (name) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(";").shift();
-  };
+  const [isLoggedIn, setIsLoggedIn] = useState(null); // null indicates loading state
 
   useEffect(() => {
-    const token = getCookie("token");
+    const checkAuth = async () => {
+      try {
+        const response = await getStatus();
+        if (response?.isLoggedIn === true) {
+          setIsLoggedIn(true);
+        } else {
+          throw new Error("Not logged in");
+        }
+      } catch (error) {
+        setIsLoggedIn(false);
+        toast.error("You are not logged in");
+        if (redirect) router.replace("/login");
+      }
+    };
 
-    if (!token) {
-      toast.error("You need to be logged in to access this page.");
-      router.push("/login");
-    }
-    router.push("/dashboard");
-    
+    checkAuth();
+  }, [router, redirect]);
 
-  }, [router]);
+  return isLoggedIn;
 }

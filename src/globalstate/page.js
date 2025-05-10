@@ -2,6 +2,7 @@
 import { proxy } from 'valtio';
 
 const globalState = proxy({
+  isLoggedIn: false,
   user: {},
   guilds: [],
   projects: [],

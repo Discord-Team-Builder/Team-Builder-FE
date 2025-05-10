@@ -1,69 +1,43 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useMemo,useState } from "react"
 import { cn } from "@/lib/utils"
-import { useRouter, usePathname, useParams } from "next/navigation";
+import { useRouter, useParams, usePathname  } from "next/navigation";
 import { Button } from "@/components/ui/button"
 import { useSnapshot } from 'valtio';
 import globalState from '@/globalstate/page';
-import {
-  Home,
-  FolderOpen,
-  Users,
-  Settings,
-  Sidebar,
-    Lock,
-    LogOut,
-    Headphones,
-} from "lucide-react"
+import { Home, FolderOpen, Users, Settings, Sidebar, Lock, LogOut } from "lucide-react"
 import { logout } from "@/api/APICall";
 import Image from "next/image";
 
-const SidebarNavigation = () =>  {
-  const snap = useSnapshot(globalState)
-  const [isOpen, setIsOpen] = useState(true)
-  const pathname = usePathname();
+const SidebarNavigation = () => {
+  const { projectId, user } = useSnapshot(globalState);
+  const [isOpen, setIsOpen] = useState(true);
   const params = useParams();
   const router = useRouter();
-  const projectIdArray = snap.projectId;
-  const currentProjectId = params.projectid?.toString() || projectIdArray[0]?.toString();
-  const [activeTab, setActiveTab] = useState(pathname)
+  const pathname = usePathname(); 
+  const activeTab = pathname;
+  const currentProjectId = params.projectid?.toString() || projectId[0]?.toString();
 
-  const avatarUrl = `https://cdn.discordapp.com/avatars/${snap.user.discordId}/${snap.user.avatar}.webp?size=80`;
-  
-  useEffect(() => {
-    setActiveTab(pathname);
-  }, [pathname]);
-
-  console.log("path:", pathname)
-
-
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen)
-  }
-  const navItems = [
+  const navItems = useMemo(() => [
     { id: "/dashboard", icon: Home, label: "Dashboard", path: "/dashboard" },
     { id: "/dashboard/projects", icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
     { id: `/dashboard/${currentProjectId}/teams`, icon: Users, label: "Teams", path: `/dashboard/${currentProjectId}/teams` },
     { id: "/dashboard/accounts", icon: Lock, label: "Accounts", path: "/dashboard/accounts" },
     { id: "/dashboard/settings", icon: Settings, label: "Settings", path: "/dashboard/settings" },
-  ]
+  ], [currentProjectId]);
 
-  const handleNavigation = (id, path) => {
-    setActiveTab(id)
-    router.push(path)
-  }
+  const avatarUrl = useMemo(() => (
+    `https://cdn.discordapp.com/avatars/${user?.discordId || ''}/${user?.avatar || ''}.webp?size=80`
+  ), [user?.discordId, user?.avatar]);
 
-  const handleLogout = ()=>{
-    logout()
-      .then((response) => {
-        console.log("Logout response:", response);
-        router.push("/login");
-      })
-      .catch((error) => {
-        console.error("Error logging out:", error);
-      });
-  }
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
+  const handleNavigation = (path) => router.push(path);
+
+  const handleLogout = () => {
+    logout().then(() => router.push("/login"));
+  };
 
   return (
     <>
@@ -96,11 +70,11 @@ const SidebarNavigation = () =>  {
             className={cn(
               "w-full justify-start gap-3 px-3 py-6 transition-all",
               isOpen ? "text-left" : "justify-center",
-              activeTab === item.id &&
+              pathname === item.path && // 👈 activeTab ki jagah pathname use karo
                 "bg-white text-slate-800 hover:bg-white/90 hover:text-slate-800",
-              activeTab !== item.id && "text-white hover:bg-slate-700"
+              pathname !== item.path && "text-white hover:bg-slate-700"
             )}
-            onClick={() => handleNavigation(item.id, item.path)}
+            onClick={() => handleNavigation(item.path)}
             title={!isOpen ? item.label : ""}
           >
             <item.icon className={cn("h-5 w-5", !isOpen && "mx-auto")} />
@@ -113,7 +87,7 @@ const SidebarNavigation = () =>  {
           {isOpen && <div className="flex items-center gap-2">
             <Image src={avatarUrl} alt="Avatar" className="h-5 w-5 rounded-full mr-2" width={32}
   height={32} />
-            <span className="text-sm">{snap.user.username}</span>
+            <span className="text-sm">{user?.username || ''}</span>
           </div>}
           <LogOut onClick={handleLogout} className="h-5 w-5 cursor-pointer" />
         </div>

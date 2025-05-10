@@ -1,4 +1,5 @@
 const APIConfig = {
+  status: { route: '/api/v1/status', method: 'get', type: 'none' },
   me: { route: '/api/v1/@me', method: 'get', type: 'none' },
   guilds:{ route: '/api/v1/guilds', method: 'get', type: 'none' },
   createProject: { route: '/api/v1/project/create', method:'post', type: 'body' },

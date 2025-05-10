@@ -3,9 +3,21 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { LayoutGrid, Users, LogIn } from "lucide-react";
+import globalState from "@/globalstate/page";
+import { useSnapshot } from "valtio";
 
-const Navbar= ({ isAuthenticated = false }) => {
-  const navigate = useRouter();
+const Navbar= () => {
+  const router = useRouter();
+  const snap = useSnapshot(globalState);
+    const isLoggedIn = snap.isLoggedIn
+  
+    const handleClick = () => {
+      if (isLoggedIn) {
+        router.replace('/dashboard');
+      } else {
+        router.push('/login');
+      }
+    };
 
   return (
     <header className="border-b bg-white">
@@ -28,13 +40,13 @@ const Navbar= ({ isAuthenticated = false }) => {
         </nav>
 
         <div className="flex items-center space-x-3">
-          {isAuthenticated ? (
+          {isLoggedIn ? (
             <>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="hidden md:flex items-center gap-2"
-                onClick={() => navigate.push("/dashboard")}
+                className="hidden md:flex items-center  cursor-pointer gap-2"
+                onClick={handleClick}
               >
                 <LayoutGrid className="h-4 w-4" />
                 Dashboard
@@ -43,7 +55,7 @@ const Navbar= ({ isAuthenticated = false }) => {
                 variant="default" 
                 size="sm" 
                 className="bg-[#5865F2] hover:bg-[#4752C4] cursor-pointer "
-                onClick={() => navigate.push("/dashboard")}
+                onClick={() => router.push('/dashboard/projects')}
               >
                 My Projects
               </Button>
@@ -51,7 +63,7 @@ const Navbar= ({ isAuthenticated = false }) => {
           ) : (
             <Button 
               className="bg-discord hover:bg-discord-dark cursor-pointer text-white"
-              onClick={() => navigate.push("/login")}
+              onClick={handleClick}
             >
               <LogIn className="h-4 w-4" />
               Sign in with Discord

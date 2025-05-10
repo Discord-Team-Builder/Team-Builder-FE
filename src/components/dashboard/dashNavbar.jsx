@@ -11,7 +11,7 @@ import Image from "next/image";
 const DashNavbar= () => {
   const snap = useSnapshot(globalState)
   const navigate = useRouter();
-  const avatarUrl = `https://cdn.discordapp.com/avatars/${snap.user.discordId}/${snap.user.avatar}.webp?size=80`;
+  const avatarUrl = `https://cdn.discordapp.com/avatars/${snap?.user?.discordId || ''}/${snap?.user?.avatar || ''}.webp?size=80` ;
 
   return (
     <header className="border-b bg-white sticky top-0 z-10 ">
@@ -38,7 +38,7 @@ const DashNavbar= () => {
             >
               <Image src={avatarUrl} alt="Avatar" className="h-5 w-5 rounded-full mr-2" width={32}
   height={32} />
-              {snap.user.username}
+              {snap?.user?.username || ''}
               <ChevronDown className="h-4 w-4 ml-1" />
             </Button>
           
