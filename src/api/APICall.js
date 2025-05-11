@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import { getProjectsData } from '@/lib/getProjectsData';
 import { decreaseLoader, increaseLoader } from '@/globalstate/loaderState';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'; // Set in .env
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://team-builder-be-8trjtbq8su.dcdeploy.cloud/'; // Set in .env
 
 // Create Axios instance
 const api = axios.create({
