@@ -1,12 +1,24 @@
 "use client";
 
-import React from "react";
+import React,{useState, useEffect} from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { LogIn } from "lucide-react";
+import globalState from "@/globalstate/page";
+import { useSnapshot } from "valtio";
 
 const HeroSection = () => {
-  const navigate = useRouter();
+  const router = useRouter();
+    const snap = useSnapshot(globalState);
+        const isLoggedIn = snap.isLoggedIn
+  
+    const handleClick = () => {
+      if (isLoggedIn) {
+        router.replace('/dashboard');
+      } else {
+        router.push('/login');
+      }
+    };
 
   return (
     <section className="relative overflow-hidden">
@@ -25,14 +37,24 @@ const HeroSection = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button 
-              size="lg" 
-              className="bg-[#5865F2] hover:bg-[#4752C4] text-white cursor-pointer text-lg"
-              onClick={() => navigate.push("/login")}
-            >
-              <LogIn className="h-5 w-5" />
-              Sign in with Discord
-            </Button>
+             {!isLoggedIn ? (
+                        <Button 
+                          size="lg" 
+                          className="bg-white text-[#5865F2] cursor-pointer hover:bg-gray-100 text-lg"
+                          onClick={handleClick}
+                        >
+                          <LogIn className="h-5 w-5 mr-2" />
+                          Sign in with Discord
+                        </Button>
+                      ) : (
+                        <Button 
+                          size="lg"
+                          className="bg-white text-[#5865F2] cursor-pointer hover:bg-gray-100 text-lg"
+                          onClick={handleClick}
+                        >
+                          🚀 Get Started
+                        </Button>
+                      )}
             <Button 
               variant="outline" 
               size="lg" 

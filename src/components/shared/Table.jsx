@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { CopyIcon, CheckIcon, Download, RefreshCwIcon } from 'lucide-react'
 import {exportToJSON, exportToCSV} from '@/hooks/exportdata'
+import { deleteProject } from "@/api/APICall";
 
 const ROWS_PER_PAGE = 10;
 
@@ -33,11 +34,11 @@ const Table = ({ headers, data, createproject }) => {
 
   const dropdownOptions = useMemo(() => {
     if (!filterKey) return [];
-    const uniqueValues = new Set(data.projects.map((row) => row[filterKey]));
+    const uniqueValues = new Set(data.map((row) => row[filterKey]));
     return [...uniqueValues].filter(Boolean);
   }, [filterKey, data]);
 
-  const projectsData = data?.projects || [];
+ const projectsData = data || [];
 
   const filteredData = useMemo(() => {
     const value = filterSelectValue || filterInputValue;
@@ -65,6 +66,15 @@ const Table = ({ headers, data, createproject }) => {
   };
 
   const handleDelete = () => {
+    deleteProject(selectedRow._id)
+    .then(() => {
+      alert("Project deleted successfully");
+      setSelectedRow(null);
+    })
+    .catch((error) => {
+      console.error("Error deleting project:", error);
+      alert("Error deleting project");
+    });
     setIsModalOpen(false);
   };
 

@@ -1,23 +1,35 @@
 "use client"
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import useAuthorised from "@/lib/isAuthorised";
 
 // import useAuthorised from "@/lib/isAuthorised";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 const Login = () => {
-  const navigate = useRouter();
-
-  // useAuthorised();
+  const router = useRouter();
+  const isLoggedIn = useAuthorised();
+  
+  useEffect(() => {
+    if (isLoggedIn) {
+       router.push("/dashboard");
+    }
+  }, [isLoggedIn]);
 
   
 
   const handleDiscordLogin = () => {
+    if (isLoggedIn){
+      toast.error("You are already logged in");
+      router.push("/dashboard");
+      return;
+    }
+    
     // In a real implementation, this would redirect to Discord OAuth
     window.location.href = `${API_BASE}/api/v1/auth/discord`;
     // For demonstration, we'll just show a toast
@@ -45,6 +57,7 @@ const Login = () => {
                 TeamBuilder uses Discord for authentication. No additional account needed.
               </p>
               <Button 
+                disabled={isLoggedIn}
                 className="w-full bg-[#5865F2] hover:bg-[#4752C4] cursor-pointer text-white justify-center py-6 text-base"
                 onClick={handleDiscordLogin}
               >
@@ -65,7 +78,7 @@ const Login = () => {
           <Button 
             variant="link" 
             className="text-gray-600 hover:text-[#5865F2] cursor-pointer"
-            onClick={() => navigate.push("/")}
+            onClick={() => router.push("/")}
           >
             Back to home
           </Button>

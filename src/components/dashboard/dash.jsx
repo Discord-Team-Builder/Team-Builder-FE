@@ -10,18 +10,21 @@ import { Button } from "../ui/button";
 import { getRoleStyles } from "./state";
 import CreateProjectCard from "./createProjectCard";
 import DialogDeleteConfirm from "../models/deleteConfirm";
+import { deleteProject } from '@/api/APICall';
 import { toast } from 'sonner';
 import showToast from '../shared/showToast';
 import { useSnapshot } from 'valtio';
 import globalState from '@/globalstate/page';
+import { getProjectsData } from '@/lib/getProjectsData';
   
  const Dash  = () => {
   const snap = useSnapshot(globalState)
-  const projects = snap.projects?.projects || []; 
+  const projects = getProjectsData(snap.projects);
   const servers = snap.guilds || []; 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false); // State for delete loading
+  
 
   const data = [
     {
@@ -54,13 +57,20 @@ import globalState from '@/globalstate/page';
   const handleDelete = async (project) => {
     if (project) {
       setIsDeleting(true);
-      console.log("Deleting:", project);
      
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
+      deleteProject(project._id)
+        .then((response) => {
+          showToast(response?.message)
+        })
+        .catch((error) => {
+          console.error("Error deleting project:", error);
+          showToast('error', `Failed to delete ${project.name}`)
+        });
+      setItemToDelete(null);
+      setIsDeleteModalOpen(false);
       setIsDeleting(false);
       closeDeleteModal();
-      showToast('success', `${project.name} deleted successfully`)
+      
     }
   };
 
@@ -94,15 +104,15 @@ import globalState from '@/globalstate/page';
             </div>
             <div className="flex flex-col">
               <CardTitle className="text-sm font-semibold leading-tight">
-                {project.name}
+                {project?.name}
               </CardTitle>
               <div className=" text-sm text-muted-foreground flex items-center gap-1">
             <Users className="w-4 h-4 opacity-40" />
-            <span className="opacity-40">{project.teams.length } teams</span>
+            <span className="opacity-40">{project?.teams?.length || 0 } teams</span>
           </div>
             </div>
             <span className={`ml-auto text-xs font-medium px-2 py-0.5 rounded-full ${getRoleStyles(project.role || 'admin')}`}>
-              {project.roles || 'admin'}
+              {project?.roles || 'admin'}
             </span>
           </CardHeader>
 

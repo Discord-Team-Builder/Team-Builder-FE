@@ -1,11 +1,23 @@
 "use client";
-import React from "react";
+import React, {useState, useEffect} from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { LogIn } from "lucide-react";
+import globalState from "@/globalstate/page";
+import { useSnapshot } from "valtio";
 
 const CallToAction = () => {
-  const navigate = useRouter();
+  const router = useRouter();
+  const snap = useSnapshot(globalState);
+    const isLoggedIn = snap.isLoggedIn
+
+  const handleClick = () => {
+    if (isLoggedIn) {
+      router.replace('/dashboard');
+    } else {
+      router.push('/login');
+    }
+  };
 
   return (
     <section className="py-16 bg-[#4752C4]">
@@ -18,14 +30,24 @@ const CallToAction = () => {
             Get started today and simplify your cohort team management.
           </p>
           
-          <Button 
-            size="lg" 
-            className="bg-white text-[#5865F2] cursor-pointer hover:bg-gray-100 text-lg"
-            onClick={() => navigate.push("/login")}
-          >
-            <LogIn className="h-5 w-5 mr-2" />
-            Sign in with Discord
-          </Button>
+          {!isLoggedIn ? (
+            <Button 
+              size="lg" 
+              className="bg-white text-[#5865F2] cursor-pointer hover:bg-gray-100 text-lg"
+              onClick={handleClick}
+            >
+              <LogIn className="h-5 w-5 mr-2" />
+              Sign in with Discord
+            </Button>
+          ) : (
+            <Button 
+              size="lg"
+              className="bg-white text-[#5865F2] cursor-pointer hover:bg-gray-100 text-lg"
+              onClick={handleClick}
+            >
+              🚀 Get Started
+            </Button>
+          )}
         </div>
       </div>
     </section>

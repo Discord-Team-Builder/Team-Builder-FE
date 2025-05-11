@@ -7,17 +7,27 @@ import { getGuilds, getME, getAllProject } from "@/api/APICall";
 import { useRouter } from "next/navigation";
 import { ThreeDots } from "react-loader-spinner";
 import globalState from "@/globalstate/page";
+import { useSnapshot } from "valtio";
 
 
 export default function DashboardLayout({ children }) {
+  const snap = useSnapshot(globalState);
+
+  // const isLoggedIn = snap.isLoggedIn;
   const [loading, setLoading] = useState(true);
     const router = useRouter();
 
+    
+
     useEffect(() => {
+
+      // if (!isLoggedIn) {
+      //   router.replace("/login");
+      //   return;
+      // }
       getME()
         .then((response) => {
-          globalState.user = response.user;
-          console.log("User data:", response);
+          globalState.user = response?.user || null;
           setLoading(false);
           
         })
@@ -34,19 +44,12 @@ export default function DashboardLayout({ children }) {
         });
       getGuilds()
         .then((response) => {
-          globalState.guilds = response.guilds;
-          console.log("Guilds data:", response);
+          globalState.guilds = response?.guilds || [];
         })
         .catch((error) => {
           console.error("Error fetching guilds data:", error);
         });
       getAllProject()
-        .then((response) => {
-          globalState.projects = response;
-        })
-        .catch((error) => {
-          console.error("Error fetching projects:", error);
-        });
     }, []);
 
   if (loading) {
