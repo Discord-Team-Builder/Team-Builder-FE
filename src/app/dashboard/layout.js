@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import DashNavbar from "@/components/dashboard/dashNavbar";
 import SidebarNavigation from "@/components/dashboard/sidebarNavigation";
-import { getGuilds, getME, getAllProject, getStatus } from "@/api/APICall";
+import { getGuilds, getME, getAllProject } from "@/api/APICall";
 import { useRouter } from "next/navigation";
 import { ThreeDots } from "react-loader-spinner";
 import globalState from "@/globalstate/page";
@@ -12,17 +12,19 @@ import { useSnapshot } from "valtio";
 
 export default function DashboardLayout({ children }) {
   const snap = useSnapshot(globalState);
-  const isLoggedIn = snap.isLoggedIn;
+
+  // const isLoggedIn = snap.isLoggedIn;
   const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     
 
     useEffect(() => {
-      if (!isLoggedIn) {
-        router.replace("/login");
-        return;
-      }
+
+      // if (!isLoggedIn) {
+      //   router.replace("/login");
+      //   return;
+      // }
       getME()
         .then((response) => {
           globalState.user = response?.user || null;
@@ -48,12 +50,6 @@ export default function DashboardLayout({ children }) {
           console.error("Error fetching guilds data:", error);
         });
       getAllProject()
-        .then((response) => {
-          globalState.projects = response || [];
-        })
-        .catch((error) => {
-          console.error("Error fetching projects:", error);
-        });
     }, []);
 
   if (loading) {

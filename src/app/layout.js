@@ -1,8 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ToasterProvider from '@/components/shared/ToasterProvider' 
-import globalState from "@/globalstate/page";
-import CustomLoader from "@/lib/CustomLoader";
+
+// import globalState from "@/globalstate/page";
+// import CustomLoader from "@/lib/CustomLoader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +29,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        {globalState.isLoader && CustomLoader()}
+        {/* {globalState.isLoader && CustomLoader()} */}
         {children}
         <ToasterProvider  /> 
       </body>
