@@ -9,7 +9,7 @@ import useAuthorised from "@/lib/isAuthorised";
 
 // import useAuthorised from "@/lib/isAuthorised";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://team-builder-be-8trjtbq8su.dcdeploy.cloud';
 
 const Login = () => {
   const router = useRouter();
