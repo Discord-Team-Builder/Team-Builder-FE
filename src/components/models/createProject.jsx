@@ -68,8 +68,15 @@ export default function CreateProjectModal({ open, onClose }) {
     formData.append("maxTeams", data.maxTeams);
     formData.append("maxMembersPerTeam", data.maxMembersPerTeam);
     formData.append("guildId", data.guildId);
-    if (data.csvFile) {
-      formData.append("csvFile", data.csvFile);
+    if (useTextField) {
+    const emailsRaw = data.emailList || "";
+    const emailsArray = emailsRaw
+      .split(/[\n,]+/) // split by comma or new line
+      .map(email => email.trim()) // trim whitespace
+      .filter(email => email.length > 0); // remove empty strings
+    formData.append('members', JSON.stringify(emailsArray));
+    } else {
+      formData.append('csvFile', data.csvFile);
     }
     // Send formData to your API endpoint
     console.log("Form Data to be sent:", formData);

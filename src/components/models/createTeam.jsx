@@ -60,8 +60,13 @@ export default function CreateTeamModal({ open, onClose }) {
   formData.append('projectId', data.projectName);
 
   // Append emails or CSV file based on the toggle
-  if (useTextField) {
-    formData.append('members', data.emailList);
+   if (useTextField) {
+    const emailsRaw = data.emailList || "";
+    const emailsArray = emailsRaw
+      .split(/[\n,]+/) // split by comma or new line
+      .map(email => email.trim()) // trim whitespace
+      .filter(email => email.length > 0); // remove empty strings
+    formData.append('members', JSON.stringify(emailsArray));
   } else {
     formData.append('csvFile', data.csvFile);
   }
@@ -82,12 +87,22 @@ export default function CreateTeamModal({ open, onClose }) {
 };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-      setValue("csvFile", file, { shouldValidate: true }); // Update state with the selected file
-    }
-  };
+  const file = e.target.files[0];
+  if (file) {
+    setSelectedFile(file);
+    setValue("csvFile", file, { shouldValidate: true });
+
+    Papa.parse(file, {
+      header: false, // We just need plain rows
+      skipEmptyLines: true,
+      complete: function (results) {
+        const emailColumn = results.data.map(row => row[0].trim()).filter(Boolean);
+        console.log("Parsed Emails:", emailColumn);
+        // Optionally: you can also validate email format here
+      },
+    });
+  }
+};
 
   const formValues = watch();
   const isStep1Complete = formValues.teamName;

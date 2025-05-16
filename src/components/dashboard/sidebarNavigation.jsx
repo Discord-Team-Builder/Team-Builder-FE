@@ -19,7 +19,7 @@ const SidebarNavigation = () => {
   const router = useRouter();
   const pathname = usePathname(); 
   const activeTab = pathname;
-  const currentProjectId = params.projectid?.toString() || projectId[0]?.toString();
+  const currentProjectId = projectId[0]?.toString();
 
   const navItems = useMemo(() => [
     { id: "/dashboard", icon: Home, label: "Dashboard", path: "/dashboard" },

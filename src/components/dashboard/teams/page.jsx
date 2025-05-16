@@ -45,7 +45,7 @@ const Teams = ({project}) => {
     <div className='py-4'>
       <div className='flex gap-2 items-center'>
         <Users className='bg-discord-light/20 text-discord p-1 rounded-sm' /> 
-        <strong className='text-2xl'>Web Development bootcamp</strong><span className='text-gray-500'>(5/7 teams)</span>
+        <strong className='text-2xl'>{project?.name || ''}</strong><span className='text-gray-500'>{`${project?.teams?.length || 0}/${project?.maxTeams || 0} teams`}</span>
       </div>
       <div className='flex flex-wrap justify-center gap-4 py-4'>
        

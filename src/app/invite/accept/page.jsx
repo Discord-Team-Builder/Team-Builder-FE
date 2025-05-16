@@ -21,10 +21,18 @@ const AcceptInvitePage = () => {
   acceptTeamInvite({token})
     .then((res) => {
       console.log("Response:", res)
-      setStatus('success')
-      setMessage(res?.data?.message || 'You have successfully joined the team!')
-      setTimeout(() => router.push('/dashboard'), 2000)
-    })
+    
+        if (res?.status === 200) {
+          setStatus('success')
+          setMessage(res?.data?.message || 'You have successfully joined the team!')
+        } else {
+         
+          setStatus('error')
+          setMessage(res?.data?.error || 'Something went wrong!')
+        }
+
+        setTimeout(() => router.push('/dashboard'), 2000)
+      })
     .catch((error) => {
       console.error("API Error:", error)
       setStatus('error')
@@ -60,7 +68,7 @@ const AcceptInvitePage = () => {
         </div>
       ) : (
         <div className='flex gap-4'>
-          <Button disabled={loading} onClick={handleAccept}>Accept</Button>
+          <Button variant="secondary" className="bg-white text-[#5865F2] cursor-pointer hover:bg-gray-100 text-lg" disabled={loading} onClick={handleAccept}>Accept</Button>
           <Button variant="destructive" disabled={loading} onClick={handleDecline}>Decline</Button>
         </div>
       )}
