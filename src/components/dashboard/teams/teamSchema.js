@@ -2,7 +2,9 @@ import * as yup from "yup";
 
 export const teamSchema = yup.object({
   teamName: yup.string().required("team Name is required"),
-  serverId: yup.string().required("Server ID is required"),
+  projectName: yup.string().required("Project Name is required"),
+  
+  // serverId: yup.string().required("Server ID is required"),
   maxTeam: yup
     .number()
     .typeError("Max team value is required")

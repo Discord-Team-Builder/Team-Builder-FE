@@ -9,6 +9,8 @@ import globalState from '@/globalstate/page';
 import { Home, FolderOpen, Users, Settings, Sidebar, Lock, LogOut } from "lucide-react"
 import { logout } from "@/api/APICall";
 import Image from "next/image";
+import  Avatar from '@/components/baseComponents/Avatar'
+import { getInitials } from '@/lib/getInitials'
 
 const SidebarNavigation = () => {
   const { projectId, user } = useSnapshot(globalState);
@@ -85,8 +87,11 @@ const SidebarNavigation = () => {
         <div className="p-4 border-t border-indigo-500/30">
         <div className="flex items-center justify-between">
           {isOpen && <div className="flex items-center gap-2">
-            <Image src={avatarUrl} alt="Avatar" className="h-5 w-5 rounded-full mr-2" width={32}
-  height={32} />
+            {user?.avatar && user?.discordId ? (
+            <Image src={avatarUrl} alt="Avatar" className="h-5 w-5 rounded-full mr-2" width={32} height={32} />
+             ) : (
+             <Avatar text={getInitials(member?.user?.globalName || 'TB')} size='sm' />
+            )}
             <span className="text-sm">{user?.username || ''}</span>
           </div>}
           <LogOut onClick={handleLogout} className="h-5 w-5 cursor-pointer" />

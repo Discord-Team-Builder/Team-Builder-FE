@@ -13,6 +13,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { getProjectsData } from "@/lib/getProjectsData";
 import {useSnapshot} from 'valtio';
 import globalState from '@/globalstate/page';
+import { createTeam } from "@/api/APICall";
 
 const teamData = [
     { id: 1, name: 'Team Alpha', value: 'alpha' },
@@ -39,6 +40,8 @@ export default function CreateTeamModal({ open, onClose }) {
     resolver: yupResolver(teamSchema),
     mode: "onChange",
     defaultValues: {
+      projectName: "",
+      teamName: "",
       useTextField: false,
       emailList: "",
       csvFile: null,
@@ -52,9 +55,31 @@ export default function CreateTeamModal({ open, onClose }) {
   }, [open]);
  
   const onSubmit = (data) => {
-    console.log('Form Data:', data);
-  
-  };
+  const formData = new FormData();
+  formData.append('teamName', data.teamName);
+  formData.append('projectId', data.projectName);
+
+  // Append emails or CSV file based on the toggle
+  if (useTextField) {
+    formData.append('members', data.emailList);
+  } else {
+    formData.append('csvFile', data.csvFile);
+  }
+
+  createTeam(formData)
+    .then((response) => {
+      console.log('Team created:', response);
+      // Reset form and close modal
+      setStep(1);
+      setSelectedFile(null);
+      setUseTextField(false);
+      setIsBotConnected(false);
+      onClose();
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+};
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -65,7 +90,7 @@ export default function CreateTeamModal({ open, onClose }) {
   };
 
   const formValues = watch();
-  const isStep1Complete = formValues.teamName && formValues.serverId;
+  const isStep1Complete = formValues.teamName;
   const isStep2Complete = useTextField
   ? formValues.emailList && !errors.emailList
   : selectedFile && !errors.csvFile;
@@ -89,46 +114,46 @@ export default function CreateTeamModal({ open, onClose }) {
             ))}
           </div>
         </div>
-
+        <form onSubmit={handleSubmit(onSubmit)}>
         {step === 1 && (
-         <form onSubmit={handleSubmit(onSubmit)}>
+         
          <div className="space-y-2">
            
 
            <div>
-             <Label className="py-2" htmlFor="teamName">Project Name</Label>
-             <Select  onValueChange={(val) => setValue("teamName", val)}>
+             <Label className="py-2" htmlFor="projectName">Project Name</Label>
+             <Select  onValueChange={(val) => setValue("projectName", val)}>
                 <SelectTrigger className='w-full '>
                 <SelectValue placeholder="Select a project" />
                 </SelectTrigger>
                 <SelectContent className=' z-50 bg-white'>
                 {projects.map((p) => (
-                    <SelectItem key={p._id} value={p.name}>
+                    <SelectItem key={p._id} value={p._id}>
                     {p.name}
                     </SelectItem>
                 ))}
                 </SelectContent>
             </Select>
-             {errors.teamName && (
-               <p className="text-red-500 text-sm mt-1">{errors.teamName.message}</p>
+             {errors.projectName && (
+               <p className="text-red-500 text-sm mt-1">{errors.projectName.message}</p>
              )}
            </div>
 
 
            <div>
-             <Label className="py-2" htmlFor="serverId">Discord Server ID</Label>
+             <Label className="py-2" htmlFor="teamName">teamName</Label>
              <Input
-               id="serverId"
-               {...register("serverId")}
-               className={errors.serverId ? "border-red-500" : ""}
+               id="teamName"
+               {...register("teamName")}
+               className={errors.teamName ? "border-red-500" : ""}
              />
-             {errors.serverId && (
-               <p className="text-red-500 text-sm mt-1">{errors.serverId.message}</p>
+             {errors.teamName && (
+               <p className="text-red-500 text-sm mt-1">{errors.teamName.message}</p>
              )}
-             <Description className="text-gray-400 text-sm font-light p-1">Your project will be linked to this Discord server.Enable Developer Mode (Settings → Advanced), then right-click the server name and click “Copy Server ID”</Description>
+             <Description className="text-gray-400 text-sm font-light p-1">Your team name should be unique</Description>
            </div>
          </div>
-       </form>
+       
         )}
 
         {step === 2 && (
@@ -228,7 +253,7 @@ export default function CreateTeamModal({ open, onClose }) {
             Skip
           </Button>}
           <Button
-            type="button"
+             type={step === 3 && isBotConnected ? "submit" : "button"}
             disabled={
               (step === 1 && (!isStep1Complete || Object.keys(errors).length > 0)) ||
               (step === 2 && !isStep2Complete) ||
@@ -241,11 +266,16 @@ export default function CreateTeamModal({ open, onClose }) {
                 ? "bg-discord cursor-not-allowed"
                 : "bg-discord hover:bg-discord-dark cursor-pointer"
             }`}
-            onClick={() => {
+             onClick={(e) => {
+              console.log("buton clicked 1");
+              e.preventDefault(); // 👈 prevents accidental form submit
+              console.log("buton clicked 2");
               if (step === 3 && isBotConnected) {
-                onClose(); // Close the modal
+                console.log("buton clicked 3");
+                onSubmit(formValues);
               } else {
                 setStep((prev) => Math.min(prev + 1, 3));
+                console.log("buton clicked 4");
               }
             }}
           >
@@ -254,6 +284,7 @@ export default function CreateTeamModal({ open, onClose }) {
           </div>
           
         </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

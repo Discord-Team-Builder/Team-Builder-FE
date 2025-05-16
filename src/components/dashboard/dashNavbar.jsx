@@ -7,6 +7,8 @@ import { Input } from "../ui/input";
 import { useSnapshot } from 'valtio';
 import globalState from "@/globalstate/page";
 import Image from "next/image";
+import  Avatar from '@/components/baseComponents/Avatar'
+import { getInitials } from '@/lib/getInitials'
 
 const DashNavbar= () => {
   const snap = useSnapshot(globalState)
@@ -36,8 +38,11 @@ const DashNavbar= () => {
               className="bg-discord hover:bg-discord-dark cursor-pointer text-white"
               onClick={() => navigate.push("#")}
             >
-              <Image src={avatarUrl} alt="Avatar" className="h-5 w-5 rounded-full mr-2" width={32}
-  height={32} />
+              {snap?.user?.avatar && snap?.user?.discordId ? (
+              <Image src={avatarUrl} alt="Avatar" className="h-5 w-5 rounded-full mr-2" width={32} height={32} />
+              ) : (
+              <Avatar text={getInitials(member?.user?.globalName || 'TB')} size='sm' />
+             )}
               {snap?.user?.username || ''}
               <ChevronDown className="h-4 w-4 ml-1" />
             </Button>

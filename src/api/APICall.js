@@ -208,5 +208,32 @@ export const deleteProject = async (projectId) => {
   }
 };
 
+// Create a new team
+export const createTeam = async (body) => {
+  try {
+    const data = await apiCall('createTeam', { body});
+    const newTeam = data?.team || [];
+    const currentTeams = globalState.teams || [];
+    globalState.teams = [...currentTeams, newTeam];
+    return data;
+  } catch (error) {
+    console.error('Failed to create team', error);
+    toast.error('Failed to create team');
+    
+  }
+};
+
+// Accept team invite
+export const acceptTeamInvite = async ({token}) => {
+  try {
+    const data = await apiCall('acceptTeamInvite', { query: { token } });
+    return data;
+  } catch (error) {
+    console.error('Failed to accept team invite', error);
+    toast.error('Failed to accept team invite');
+    
+  }
+};
+
 // Add more specific functions as needed
 export default apiCall;
