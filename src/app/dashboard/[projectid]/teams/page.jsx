@@ -16,27 +16,34 @@ import {
   } from "@/components/ui/select"
 import Teams from '@/components/dashboard/teams/page';
 import CreateTeamModal from '@/components/models/createTeam';
+import { getProjectsData } from '@/lib/getProjectsData';
 
 export default function TeamsPage() {
 
     const router = useRouter();
 
   const pathname = useParams()
-  const projectid = pathname.projectid
+  const projectid = pathname.projectid?.toString() || "";
+  console.log("projectid:", projectid)
+  console.log("pathname:", pathname)
   const snap = useSnapshot(globalState)
-  const projects = snap.projects.projects || []
-  const [selectedProjectId, setSelectedProjectId] =  useState(projects[0]?.id || "");
-
-  const project = snap.projects.projects.find((p) => p.id === projectid)
+  const projects = getProjectsData(snap.projects);
+  const [selectedProjectId, setSelectedProjectId] =  useState(projects[0]?._id || "");
+  console.log(" snap.projects:",  projects)
+  console.log("projects:", projects[0]?._id)
+  console.log("selectedProjectId:", selectedProjectId)
+  const project = snap.projects.find((p) => p._id === projectid)
   const teams = project?.teams || []
+  console.log("teams:", teams)
 
   useEffect(() => {
     if (!selectedProjectId && projects.length > 0) {
-      setSelectedProjectId(projects[0].id);
+      setSelectedProjectId(projects[0]._id);
     }
   }, [projects, selectedProjectId]);
 
   const handleProjectChange = (value) => {
+    console.log("onValueChange value:", value, typeof value);
     router.push(`/dashboard/${value}/teams`); // dynamic route update
     setSelectedProjectId(value);
   };
@@ -76,7 +83,7 @@ export default function TeamsPage() {
             <SelectGroup>
             <SelectLabel>Teams</SelectLabel>
             {teams.map((team) => (
-                    <SelectItem key={team.id} value={team.id}>
+                    <SelectItem key={team._id} value={team._id}>
                     {team.name}
                     </SelectItem>
                 ))}
@@ -89,7 +96,7 @@ export default function TeamsPage() {
       </div>
       <Button onClick={handleCreateTeam} type='button' className="cursor-pointer bg-discord hover:bg-discord-dark text-white" > Create new team + </Button>
       </div>
-      <Teams/>
+      <Teams  project={project}/>
       <CreateTeamModal open={open} onClose={handleCreateTeam}/>
     </div>
   );
