@@ -28,7 +28,7 @@ export default function TeamsPage() {
   console.log("pathname:", pathname)
   const snap = useSnapshot(globalState)
   const projects = getProjectsData(snap.projects);
-  const [selectedProjectId, setSelectedProjectId] =  useState(projects[0]?._id || "");
+  const [selectedProjectId, setSelectedProjectId] =  useState("");
   console.log(" snap.projects:",  projects)
   console.log("projects:", projects[0]?._id)
   console.log("selectedProjectId:", selectedProjectId)
@@ -37,10 +37,11 @@ export default function TeamsPage() {
   console.log("teams:", teams)
 
   useEffect(() => {
-    if (!selectedProjectId && projects.length > 0) {
-      setSelectedProjectId(projects[0]._id);
-    }
-  }, [projects, selectedProjectId]);
+  
+  if (!selectedProjectId && projects.length > 0) {
+    setSelectedProjectId(projectid || projects[0]._id);
+  }
+}, [projects, projectid]);
 
   const handleProjectChange = (value) => {
     console.log("onValueChange value:", value, typeof value);
@@ -54,16 +55,20 @@ export default function TeamsPage() {
   return (
     <div >
       <div>
-        <Button type='button' variant='outline' className="cursor-pointer" > <MoveLeft/> Back</Button>
+        <Button type='button' variant='outline' onClick={() => router.back()} className="cursor-pointer" > <MoveLeft/> Back</Button>
       </div>
       <div className='flex justify-between py-2'>
       <div className='flex md:flex-row flex-col gap-2 '>
 
-      <Select value={selectedProjectId} onValueChange={handleProjectChange}>
+      <Select
+        value={selectedProjectId}
+        onValueChange={handleProjectChange}
+        disabled={!selectedProjectId}
+      >
       <SelectTrigger className="md:w-[200px] w-full">
         <SelectValue placeholder="Select a Projects" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="bg-white text-black">
         <SelectGroup>
           <SelectLabel>Projects</SelectLabel>
           {projects.map((p) => (
@@ -79,7 +84,7 @@ export default function TeamsPage() {
         <SelectTrigger className="md:w-[200px] w-full">
             <SelectValue placeholder="Select a teams" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white text-black">
             <SelectGroup>
             <SelectLabel>Teams</SelectLabel>
             {teams.map((team) => (
