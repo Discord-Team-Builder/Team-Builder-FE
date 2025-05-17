@@ -18,12 +18,15 @@ WORKDIR /app
 # Copy dependencies from the previous stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
+COPY next.config.mjs ./
+COPY postcss.config.mjs ./
 # Debugging step to check files in /app
 RUN ls -alh /app
 
 # Run the build process and enable verbose logging to help debug issues
-RUN npm run build --verbose
+RUN npm run build || (echo "Build failed" && exit 1)
+
+RUN ls -alh .next
 
 # Production image
 FROM node:20-alpine AS runner
