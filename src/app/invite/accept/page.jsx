@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -6,7 +6,7 @@ import { acceptTeamInvite } from '@/api/APICall'
 import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
 
 const AcceptInvitePage = () => {
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams({ suspense: true });
   const router = useRouter()
 
   const token = searchParams.get('token')
