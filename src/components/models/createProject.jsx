@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import globalState from "@/globalstate/page";
 import { useSnapshot } from "valtio";
 import { createProject, getAllProject } from "@/api/APICall";
+import EmailPreview from "../shared/EmailPreview";
 
 
 export default function CreateProjectModal({ open, onClose }) {
@@ -27,6 +28,7 @@ export default function CreateProjectModal({ open, onClose }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [useTextField, setUseTextField] = useState(false);
   const [isBotConnected, setIsBotConnected] = useState(false);
+  const [parsedEmails, setParsedEmails] = useState([]);
   const {
     register,
     handleSubmit,
@@ -60,6 +62,15 @@ export default function CreateProjectModal({ open, onClose }) {
       setStep(1); 
     }
   }, [open]);
+
+  useEffect(() => {
+    if (useTextField) {
+      setParsedEmails([]);
+      setSelectedFile(null);
+      setValue("csvFile", null);
+    }
+  }, [useTextField, setValue]);
+  
  
   const onSubmit = (data) => {
     console.log('Form Data:', data);
@@ -106,9 +117,22 @@ export default function CreateProjectModal({ open, onClose }) {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setSelectedFile(file);
-      setValue("csvFile", file, { shouldValidate: true }); // Update state with the selected file
-    }
+    setSelectedFile(file);
+    setValue("csvFile", file, { shouldValidate: true });
+
+    Papa.parse(file, {
+      header: false, // We just need plain rows
+      skipEmptyLines: true,
+      complete: function (results) {
+        const emailColumn = results.data
+        .map(row => row[0].trim())
+        .filter(email => email && email.length > 0);
+        setParsedEmails(emailColumn);
+        console.log("Parsed Emails:", emailColumn);
+        // Optionally: you can also validate email format here
+      },
+    });
+  }
   };
 
   const formValues = watch();
@@ -136,9 +160,9 @@ export default function CreateProjectModal({ open, onClose }) {
             ))}
           </div>
         </div>
-
+        <form onSubmit={handleSubmit(onSubmit)}>
         {step === 1 && (
-         <form onSubmit={handleSubmit(onSubmit)}>
+         
          <div className="space-y-2">
            
 
@@ -212,7 +236,7 @@ export default function CreateProjectModal({ open, onClose }) {
              {/* <Description className="text-gray-400 text-sm font-light p-1">Enable Developer Mode (Settings → Advanced), then right-click the server name and click “Copy Server ID”</Description> */}
            </div>
          </div>
-       </form>
+     
         )}
 
         {step === 2 && (
@@ -260,7 +284,10 @@ export default function CreateProjectModal({ open, onClose }) {
               </div>
             )}
             {selectedFile && (
-              <p className="text-gray-700 mt-2">{`> ${selectedFile.name}`} </p> // Show the selected file name
+              <div className="mt-2">
+              <p className="text-gray-700 mt-2">{`> ${selectedFile.name}`} </p>
+              <EmailPreview emails={parsedEmails} />
+              </div>
             )}
             <div className=" flex gap-2 text-sm p-3 opacity-70 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg">
             <InfoIcon/> {!useTextField ? <div><strong> CSV Format:</strong> <p>First column must contain email addresses. Additional columns with student information are optional.</p></div>: <p>
@@ -334,12 +361,11 @@ export default function CreateProjectModal({ open, onClose }) {
               }
             }}
           >
-            Continue
+            {step === 3 ? "Create Project" : "Continue"}
           </Button>
-         
           </div>
-          
         </div>
+          </form>
       </DialogContent>
     </Dialog>
   );

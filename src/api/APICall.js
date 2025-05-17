@@ -13,9 +13,6 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'; // 
 // Create Axios instance
 const api = axios.create({
   baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
   withCredentials: true, // For HTTP-only cookies (remove if token is not HTTP-only)
 });
 
@@ -159,9 +156,9 @@ export const getGuilds = async () => {
 }
 
 // Create a new project
-export const createProject = async (body) => {
+export const createProject = async (formData) => {
   try {
-    const data = await apiCall('createProject', { body, type: 'body' })
+    const data = await apiCall('createProject', { body: formData })
     const newProjects = data?.project || []; 
     const currentProjects = getProjectsData(globalState.projects); 
     globalState.projects = [...currentProjects, newProjects];
@@ -209,9 +206,9 @@ export const deleteProject = async (projectId) => {
 };
 
 // Create a new team
-export const createTeam = async (body) => {
+export const createTeam = async (formData) => {
   try {
-    const data = await apiCall('createTeam', { body});
+    const data = await apiCall('createTeam', { body:formData});
     const newTeam = data?.team || [];
     const currentTeams = globalState.teams || [];
     globalState.teams = [...currentTeams, newTeam];

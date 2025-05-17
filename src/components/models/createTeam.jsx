@@ -14,6 +14,7 @@ import { getProjectsData } from "@/lib/getProjectsData";
 import {useSnapshot} from 'valtio';
 import globalState from '@/globalstate/page';
 import { createTeam } from "@/api/APICall";
+import EmailPreview from "../shared/EmailPreview";
 
 const teamData = [
     { id: 1, name: 'Team Alpha', value: 'alpha' },
@@ -30,6 +31,7 @@ export default function CreateTeamModal({ open, onClose }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [useTextField, setUseTextField] = useState(true);
   const [isBotConnected, setIsBotConnected] = useState(false);
+  const [parsedEmails, setParsedEmails] = useState([]);
   const {
     register,
     handleSubmit,
@@ -54,6 +56,14 @@ export default function CreateTeamModal({ open, onClose }) {
     }
   }, [open]);
  
+  useEffect(() => {
+  if (useTextField) {
+    setParsedEmails([]);
+    setSelectedFile(null);
+    setValue("csvFile", null);
+  }
+}, [useTextField, setValue]);
+
   const onSubmit = (data) => {
   const formData = new FormData();
   formData.append('teamName', data.teamName);
@@ -96,7 +106,10 @@ export default function CreateTeamModal({ open, onClose }) {
       header: false, // We just need plain rows
       skipEmptyLines: true,
       complete: function (results) {
-        const emailColumn = results.data.map(row => row[0].trim()).filter(Boolean);
+        const emailColumn = results.data
+        .map(row => row[0].trim())
+        .filter(email => email && email.length > 0);
+        setParsedEmails(emailColumn);
         console.log("Parsed Emails:", emailColumn);
         // Optionally: you can also validate email format here
       },
@@ -216,8 +229,10 @@ export default function CreateTeamModal({ open, onClose }) {
               </div>
             )}
             {selectedFile && (
-              <p className="text-gray-700 mt-2">{`> ${selectedFile.name}`} </p> // Show the selected file name
-            )}
+              <div className="mt-2">
+                <p className="text-gray-700 mt-2">{`> ${selectedFile.name}`} </p>
+                <EmailPreview emails={parsedEmails} />
+              </div>            )}
             <div className=" flex gap-2 text-sm p-3 opacity-70 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg">
             <InfoIcon/> {!useTextField ? <div><strong> CSV Format:</strong> <p>First column must contain email addresses. Additional columns with student information are optional.</p></div>: <p>
           Enter one or more email addresses separated by <strong>commas</strong> or <strong>new lines</strong>.
