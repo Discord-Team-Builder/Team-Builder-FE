@@ -6,7 +6,7 @@ import { acceptTeamInvite } from '@/api/APICall'
 import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
 
 const AcceptInvitePage = () => {
-  const searchParams = useSearchParams({ suspense: true });
+  const searchParams = useSearchParams();
   const router = useRouter()
 
   const token = searchParams.get('token')

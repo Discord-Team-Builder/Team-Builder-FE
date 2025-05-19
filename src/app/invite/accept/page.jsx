@@ -1,13 +1,14 @@
 "use client";
-import React, { Suspense } from 'react';
 import AcceptInvitePage from '@/components/AccepeInvite';
+import React, { Suspense } from 'react';
+
 
 const AcceptInvite = () => {
   return (
     <Suspense fallback={<div>Loading invite info...</div>}>
-      <AcceptInviteContent />
+      <AcceptInvitePage/>
     </Suspense>
   );
 };
 
-export default AcceptInvitePage;
+export default AcceptInvite;
