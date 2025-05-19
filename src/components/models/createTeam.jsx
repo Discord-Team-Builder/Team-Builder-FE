@@ -15,13 +15,8 @@ import {useSnapshot} from 'valtio';
 import globalState from '@/globalstate/page';
 import { createTeam } from "@/api/APICall";
 import EmailPreview from "../shared/EmailPreview";
-
-const teamData = [
-    { id: 1, name: 'Team Alpha', value: 'alpha' },
-    { id: 2, name: 'Team Beta', value: 'beta' },
-    { id: 3, name: 'Team Gama', value: 'gama' },
-    // add more teams here
-  ]
+import { Loader2 } from "lucide-react";
+import Papa from "papaparse";
 
 
 export default function CreateTeamModal({ open, onClose }) {
@@ -32,6 +27,7 @@ export default function CreateTeamModal({ open, onClose }) {
   const [useTextField, setUseTextField] = useState(true);
   const [isBotConnected, setIsBotConnected] = useState(false);
   const [parsedEmails, setParsedEmails] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -65,6 +61,10 @@ export default function CreateTeamModal({ open, onClose }) {
 }, [useTextField, setValue]);
 
   const onSubmit = (data) => {
+  setIsLoading(true);
+  try{
+
+  
   const formData = new FormData();
   formData.append('teamName', data.teamName);
   formData.append('projectId', data.projectName);
@@ -94,6 +94,13 @@ export default function CreateTeamModal({ open, onClose }) {
     .catch((error) => {
       console.error('Error:', error);
     });
+  }
+  catch (error) {
+    console.error('Error:', error);
+  } finally {
+    setIsLoading(false);
+    onClose();
+  }  
 };
 
   const handleFileChange = (e) => {
@@ -309,7 +316,16 @@ export default function CreateTeamModal({ open, onClose }) {
               }
             }}
           >
-            Continue
+            {step === 3
+            ? isLoading
+              ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                  Creating...
+                </>
+              )
+              : "Create Team"
+            : "Continue"}
           </Button>
           </div>
           

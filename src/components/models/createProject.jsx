@@ -7,6 +7,8 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
+import Papa from "papaparse";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"; 
 import { Label } from "@/components/ui/label";
@@ -20,6 +22,7 @@ import globalState from "@/globalstate/page";
 import { useSnapshot } from "valtio";
 import { createProject, getAllProject } from "@/api/APICall";
 import EmailPreview from "../shared/EmailPreview";
+import { toast } from "sonner";
 
 
 export default function CreateProjectModal({ open, onClose }) {
@@ -29,6 +32,7 @@ export default function CreateProjectModal({ open, onClose }) {
   const [useTextField, setUseTextField] = useState(false);
   const [isBotConnected, setIsBotConnected] = useState(false);
   const [parsedEmails, setParsedEmails] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -72,7 +76,9 @@ export default function CreateProjectModal({ open, onClose }) {
   }, [useTextField, setValue]);
   
  
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    setIsLoading(true); 
+    try {
     console.log('Form Data:', data);
     const formData = new FormData();
     formData.append("projectName", data.projectName);
@@ -92,14 +98,17 @@ export default function CreateProjectModal({ open, onClose }) {
     // Send formData to your API endpoint
     console.log("Form Data to be sent:", formData);
     // Example API call
-    createProject(formData)
-      .then(response => {
-        console.log("Project created successfully:", response);
-        onClose(); // Close the modal after successful submission
-      })
-      .catch(error => {
-        console.error("Error creating project:", error);
-      });
+    
+    const response = await createProject(formData);
+    toast.success("Project created successfully!");
+    console.log("Project created successfully:", response);
+     // Close modal
+     onClose();
+  } catch (error) {
+    console.error("Error creating project:", error);
+    toast.error("Failed to create project. Please try again.");
+  } finally {
+    setIsLoading(false);
     // Reset the form after submission
     setValue("projectName", "");
     setValue("maxTeams", "");
@@ -111,8 +120,9 @@ export default function CreateProjectModal({ open, onClose }) {
     setUseTextField(false);
     setIsBotConnected(false);
     setStep(1); // Reset to step 1
-    onClose(); // Close the modal
+    onClose();
   };
+}
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -141,8 +151,12 @@ export default function CreateProjectModal({ open, onClose }) {
   ? formValues.emailList && !errors.emailList
   : selectedFile && !errors.csvFile;
 
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    
+    <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+      
       <DialogContent className="max-w-md w-full rounded-2xl p-6 space-y-6">
         <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>
@@ -352,16 +366,26 @@ export default function CreateProjectModal({ open, onClose }) {
                 ? "bg-discord cursor-not-allowed"
                 : "bg-discord hover:bg-discord-dark cursor-pointer"
             }`}
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               if (step === 3 && isBotConnected) {
                 onSubmit(formValues); // Call the submit function
-                onClose(); // Close the modal
+                 // Close the modal
               } else {
                 setStep((prev) => Math.min(prev + 1, 3));
               }
             }}
           >
-            {step === 3 ? "Create Project" : "Continue"}
+          {step === 3
+            ? isLoading
+              ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                  Creating...
+                </>
+              )
+              : "Create Project"
+            : "Continue"}
           </Button>
           </div>
         </div>

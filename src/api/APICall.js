@@ -160,6 +160,11 @@ export const createProject = async (formData) => {
   try {
     const data = await apiCall('createProject', { body: formData })
     const newProjects = data?.project || []; 
+    console.log("newprojects:", newProjects);
+    const newTeams = data?.teams || [];
+    console.log("newteams:", newTeams);
+    newProjects.teams = newTeams;  
+    console.log("newprojects:", newProjects);
     const currentProjects = getProjectsData(globalState.projects); 
     globalState.projects = [...currentProjects, newProjects];
     globalState.projectId = [...globalState.projectId || [], newProjects._id];
