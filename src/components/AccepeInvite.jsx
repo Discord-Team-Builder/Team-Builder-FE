@@ -1,13 +1,16 @@
 "use client";
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { acceptTeamInvite } from '@/api/APICall'
+import { acceptTeamInvite, getStatus } from '@/api/APICall'
 import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
+import useAuthorised from '@/lib/isAuthorised';
 
 const AcceptInvitePage = () => {
+  const isLogedin = useAuthorised()
   const searchParams = useSearchParams();
   const router = useRouter()
+ 
 
   const token = searchParams.get('token')
   const team = searchParams.get('team')
@@ -18,7 +21,28 @@ const AcceptInvitePage = () => {
   const [status, setStatus] = useState(null) // 'success', 'declined', 'error'
   const [message, setMessage] = useState('')
 
+  if (!token) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f9fafb] px-4">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+          <h1 className="text-3xl font-bold mb-2 text-[#111827]">Invalid Invite Link</h1>
+          <p className="text-gray-600 mb-6">The invite link is invalid or has expired.</p>
+          <Button
+            onClick={() => router.push('/dashboard')}
+            className="bg-[#5865F2] hover:bg-[#4752c4] text-white px-6 py-2 rounded-xl text-lg"
+          >
+            Go to Dashboard
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   const handleAccept = async () => {
+    if (!isLogedin) {
+    localStorage.setItem('pendingInvite', window.location.search)
+    return router.push('/login')
+  }
     setLoading(true)
     try {
       const res = await acceptTeamInvite({ token })
@@ -26,16 +50,17 @@ const AcceptInvitePage = () => {
       if (res?.status === 200) {
         setStatus('success')
         setMessage(res?.data?.message || 'You have successfully joined the team!')
+        localStorage.removeItem('pendingInvite')
       } else {
         setStatus('error')
         setMessage(res?.data?.error || 'Something went wrong!')
       }
 
-      setTimeout(() => router.push('/dashboard'), 2000)
+      setTimeout(() => router.push('/dashboard'), 1000)
     } catch (error) {
       setStatus('error')
       setMessage(error?.response?.data?.error || 'Something went wrong!')
-      setTimeout(() => router.push('/dashboard'), 2000)
+      setTimeout(() => router.push('/dashboard'), 1000)
     } finally {
       setLoading(false)
     }
