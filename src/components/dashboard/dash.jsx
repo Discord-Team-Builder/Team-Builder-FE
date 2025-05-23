@@ -1,4 +1,5 @@
-import React, {useState} from 'react'
+"use client";
+import React, {useState, useEffect} from 'react'
 import {
     Card,
     CardHeader,
@@ -11,14 +12,15 @@ import { getRoleStyles } from "./state";
 import CreateProjectCard from "./createProjectCard";
 import DialogDeleteConfirm from "../models/deleteConfirm";
 import { deleteProject } from '@/api/APICall';
-import { toast } from 'sonner';
 import showToast from '../shared/showToast';
 import { useSnapshot } from 'valtio';
 import globalState from '@/globalstate/page';
 import { getProjectsData } from '@/lib/getProjectsData';
+import { useRouter } from 'next/navigation';
   
  const Dash  = () => {
-  const snap = useSnapshot(globalState)
+  const router = useRouter();
+  const snap = useSnapshot(globalState);
   const projects = getProjectsData(snap.projects);
   const servers = snap.guilds || []; 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -74,9 +76,55 @@ import { getProjectsData } from '@/lib/getProjectsData';
     }
   };
 
+  const [pendingInviteObj, setPendingInviteObj] = useState(null);
+
+  useEffect(() => {
+    try {
+      const invite = localStorage.getItem('pendingInvite');
+      if (invite) {
+        console.log("Pending invite found in localStorage:", invite);
+        const params = new URLSearchParams(invite.startsWith("?") ? invite : "?" + invite);
+        console.log("Parsed invite params:", params);
+        const parsedInvite = {
+          token: params.get("token"),
+          team: params.get("team"),
+          project: params.get("project"),
+          by: params.get("by"),
+        };
+        setPendingInviteObj(parsedInvite);
+      }
+    } catch (err) {
+      console.error("Invalid invite data in localStorage:", err);
+      setPendingInviteObj(null);
+    }
+  }, []);
+  const handleAcceptInvite = () => {
+    window.location.href = `/invite/accept?token=${pendingInviteObj.token}&team=${pendingInviteObj.team}&project=${pendingInviteObj.project}&by=${pendingInviteObj.by}`;
+  };
+
     return (
       <>
       <div className="flex flex-col md:flex-row gap-4">
+        {pendingInviteObj && (
+        <div className="bg-yellow-100 p-4 rounded-md mb-4 w-full">
+          <p className="text-yellow-800 font-semibold mb-2">
+            You have a pending invite!
+          </p>
+          <div className="text-yellow-900 text-sm mb-2">
+            <div><b>From:</b> {pendingInviteObj.by || 'N/A'}</div>
+            <div><b>Team:</b> {pendingInviteObj.team || 'N/A'}</div>
+            <div><b>Project:</b> {pendingInviteObj.project || 'N/A'}</div>
+            {/* Aur bhi details yahan dikhayein agar available ho */}
+          </div>
+          <Button
+            className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold"
+            onClick={handleAcceptInvite}
+          >
+            Accept Invite
+          </Button>
+        </div>
+      )}
+          
         {data.map((item, index) => (
           <Card key={index} className="w-full md:w-1/3">
             <CardHeader className="flex flex-row items-center gap-4">

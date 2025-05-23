@@ -1,16 +1,23 @@
 "use client";
-import React, { useEffect, useState } from 'react'
+import React, {  useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { acceptTeamInvite, getStatus } from '@/api/APICall'
+import { acceptTeamInvite} from '@/api/APICall'
 import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
-import useAuthorised from '@/lib/isAuthorised';
+// import useAuthorised from '@/lib/isAuthorised';
 
 const AcceptInvitePage = () => {
-  const isLogedin = useAuthorised()
+  
+  
+  // const isLogedin = useAuthorised()
   const searchParams = useSearchParams();
   const router = useRouter()
  
+  // useEffect(() => {
+  //   localStorage.setItem('pendingInvite', window.location.search)
+    
+  // }, [])
+  
 
   const token = searchParams.get('token')
   const team = searchParams.get('team')
@@ -39,10 +46,6 @@ const AcceptInvitePage = () => {
   }
 
   const handleAccept = async () => {
-    if (!isLogedin) {
-    localStorage.setItem('pendingInvite', window.location.search)
-    return router.push('/login')
-  }
     setLoading(true)
     try {
       const res = await acceptTeamInvite({ token })
@@ -50,7 +53,7 @@ const AcceptInvitePage = () => {
       if (res?.status === 200) {
         setStatus('success')
         setMessage(res?.data?.message || 'You have successfully joined the team!')
-        localStorage.removeItem('pendingInvite')
+        // localStorage.removeItem('pendingInvite')
       } else {
         setStatus('error')
         setMessage(res?.data?.error || 'Something went wrong!')
