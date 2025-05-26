@@ -6,10 +6,7 @@ import { LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import useAuthorised from "@/lib/isAuthorised";
-
-// import useAuthorised from "@/lib/isAuthorised";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://team-builder-be-8trjtbq8su.dcdeploy.cloud';
+import { login } from "@/api/APICall";
 
 const Login = () => {
   const router = useRouter();
@@ -30,8 +27,7 @@ const Login = () => {
       return;
     }
     
-    // In a real implementation, this would redirect to Discord OAuth
-    window.location.href = `${API_BASE}/api/v1/auth/discord`;
+    login();
     // For demonstration, we'll just show a toast
     toast.success("Redirecting to Discord for authentication...");
   }

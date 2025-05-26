@@ -13,7 +13,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { getProjectsData } from "@/lib/getProjectsData";
 import {useSnapshot} from 'valtio';
 import globalState from '@/globalstate/page';
-import { createTeam } from "@/api/APICall";
+import { botConnect, createTeam } from "@/api/APICall";
 import EmailPreview from "../shared/EmailPreview";
 import { Loader2 } from "lucide-react";
 import Papa from "papaparse";
@@ -102,6 +102,45 @@ export default function CreateTeamModal({ open, onClose }) {
     onClose();
   }  
 };
+
+  const handleBotConnect = () => {
+    const selectedProject = projects.find(p => p._id === watch("projectName"));
+    if (!selectedProject?.guildId) {
+      alert("Please select a valid project with a connected Discord server.");
+      return;
+    }
+    const guildId = selectedProject.guildId;
+    console.log("Connecting bot to guild:", guildId);
+    botConnect(guildId)
+    .then((response) => {
+      console.log('Bot connected:', response);
+      if (response?.statusCode === 200) {
+        setIsBotConnected(true);
+        globalState.isBotInstalled = true;
+        globalState.installLink = '';
+      }
+    })
+    .catch((error) => {
+      console.error('Error connecting bot:', error);
+      // if (error?.response?.data?.installLink) {
+      //   window.open(error.response.data.installLink, '_blank');
+      // } else {
+        alert('Failed to connect bot. Please try again later.');
+      // }
+    });
+  };
+
+  const handleBotInstall = () => {
+    const installLink = snap?.installLink;
+    if (installLink) {
+      window.open(installLink, '_blank');
+    } else {
+      console.log('Bot installation link is not available. Please try again later.');
+    }
+    setTimeout(() => {
+    globalState.isBotInstalled = true;
+    }, 1000); // Simulate bot installation
+  };
 
   const handleFileChange = (e) => {
   const file = e.target.files[0];
@@ -255,10 +294,18 @@ export default function CreateTeamModal({ open, onClose }) {
               <p>Connect the Team Builder bot to your Discord server to automate team creation and notifications.</p>
             </div>
             <div className="flex gap-4 items-center">
-              <Button 
+              {snap.isBotInstalled ? (
+                <Button 
                 type="button" 
-                onClick={() => setIsBotConnected(true)} 
-                className="text-white  bg-discord hover:bg-discord-dark cursor-pointer">Add bot to server</Button>{!isBotConnected ? <p className="text-amber-700/50 gap-2 flex font-bold"><InfoIcon className="-rotate-180"/> Not Connected</p>: <p className="text-green-600/50 gap-2 flex font-bold"><CircleCheckBig /> Connected</p> }
+                onClick={handleBotConnect} 
+                className="text-white  bg-discord hover:bg-discord-dark cursor-pointer">Connect bot to server</Button>
+              ): (
+                <Button 
+                type="button" 
+                onClick={handleBotInstall} 
+                className="text-white  bg-discord hover:bg-discord-dark cursor-pointer">Install bot to Server</Button>
+              )}
+              {!isBotConnected ? <p className="text-amber-700/50 gap-2 flex font-bold"><InfoIcon className="-rotate-180"/>{`${snap.isBotInstalled ? 'Not Connected' : 'Not Installed' }`} </p>: <p className="text-green-600/50 gap-2 flex font-bold"><CircleCheckBig /> Connected</p> }
               
             </div>
             <div className=" flex gap-2 text-sm p-3 opacity-70 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg">

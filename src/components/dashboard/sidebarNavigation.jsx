@@ -90,7 +90,7 @@ const SidebarNavigation = () => {
             {user?.avatar && user?.discordId ? (
             <Image src={avatarUrl} alt="Avatar" className="h-5 w-5 rounded-full mr-2" width={32} height={32} />
              ) : (
-             <Avatar text={getInitials(member?.user?.globalName || 'TB')} size='sm' />
+             <Avatar text={getInitials(user?.globalName || 'TB')} size='sm' />
             )}
             <span className="text-sm">{user?.username || ''}</span>
           </div>}
