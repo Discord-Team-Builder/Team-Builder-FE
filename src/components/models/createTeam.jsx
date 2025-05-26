@@ -114,7 +114,7 @@ export default function CreateTeamModal({ open, onClose }) {
     botConnect(guildId)
     .then((response) => {
       console.log('Bot connected:', response);
-      if (response?.status === 200) {
+      if (response?.statusCode === 200) {
         setIsBotConnected(true);
         globalState.isBotInstalled = true;
         globalState.installLink = '';
@@ -137,6 +137,9 @@ export default function CreateTeamModal({ open, onClose }) {
     } else {
       console.log('Bot installation link is not available. Please try again later.');
     }
+    setTimeout(() => {
+    globalState.isBotInstalled = true;
+    }, 1000); // Simulate bot installation
   };
 
   const handleFileChange = (e) => {
@@ -302,7 +305,7 @@ export default function CreateTeamModal({ open, onClose }) {
                 onClick={handleBotInstall} 
                 className="text-white  bg-discord hover:bg-discord-dark cursor-pointer">Install bot to Server</Button>
               )}
-              {!isBotConnected ? <p className="text-amber-700/50 gap-2 flex font-bold"><InfoIcon className="-rotate-180"/> Not Connected</p>: <p className="text-green-600/50 gap-2 flex font-bold"><CircleCheckBig /> Connected</p> }
+              {!isBotConnected ? <p className="text-amber-700/50 gap-2 flex font-bold"><InfoIcon className="-rotate-180"/>{`${snap.isBotInstalled ? 'Not Connected' : 'Not Installed' }`} </p>: <p className="text-green-600/50 gap-2 flex font-bold"><CircleCheckBig /> Connected</p> }
               
             </div>
             <div className=" flex gap-2 text-sm p-3 opacity-70 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg">

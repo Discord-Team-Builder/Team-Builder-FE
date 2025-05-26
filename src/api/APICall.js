@@ -250,7 +250,7 @@ export const botConnect = async (guildId) => {
     console.log("responce:", response);
     console.log("Install Link:", globalState.installLink);
     console.log("Response Status:", response?.data?.installLink);
-    globalState.isBotInstalled = response?.status === 200;
+    globalState.isBotInstalled = response?.statusCode === 200;
     return response;
   } catch (error) {
     console.error('Failed to connect bot', error);
