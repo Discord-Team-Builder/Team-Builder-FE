@@ -33,9 +33,14 @@ const apiCall = async (endpointKey, options = {}) => {
   const paramMatches = route.match(/:\w+/g) || [];
   for (const param of paramMatches) {
     const paramName = param.slice(1); // Remove ':' (e.g., :id -> id)
-    if (options[paramName]) {
-      url = url.replace(param, options[paramName]);
-    } else {
+    if (options.params?.[paramName]) {
+    url = url.replace(param, encodeURIComponent(options.params[paramName]));
+    }
+    // Fallback to top-level options
+    else if (options[paramName]) {
+      url = url.replace(param, encodeURIComponent(options[paramName]));
+    }
+    else {
       throw new Error(`Missing value for URL parameter ${param} in ${endpointKey}`);
     }
   }
@@ -95,15 +100,15 @@ const apiCall = async (endpointKey, options = {}) => {
 // Specific API functions
 export const getStatus = async () => {
   try {
-    const data = await apiCall('status');
-    if (data?.isLoggedIn) {
+    const response = await apiCall('status');
+    if (response?.data?.isLoggedIn) {
       globalState.isLoggedIn = true;
     } else {
       globalState.isLoggedIn = false;
       globalState.user = null;
       globalState.guilds = [];
     }
-    return data;
+    return response.data;
   }
   catch (error) {
     if (error.status === 401) {
@@ -116,8 +121,8 @@ export const getStatus = async () => {
 };
 export const getME = async () => {
  try {
-    const data = await apiCall('me');
-    return data;
+    const response = await apiCall('me');
+    return response?.data;
   }catch (error) {
     console.error('Failed to fetch user data', error);
     toast.error('Failed to fetch user data');
@@ -146,8 +151,8 @@ export const logout = async () => {
 }
 export const getGuilds = async () => {
   try{
-    const data = await apiCall('guilds'); 
-    return data;
+    const response = await apiCall('guilds'); 
+    return response.data;
   }catch (error) {
     console.error('Failed to fetch guilds', error);
     toast.error('Failed to fetch guilds');
@@ -158,10 +163,10 @@ export const getGuilds = async () => {
 // Create a new project
 export const createProject = async (formData) => {
   try {
-    const data = await apiCall('createProject', { body: formData })
-    const newProjects = data?.project || []; 
+    const response = await apiCall('createProject', { body: formData })
+    const newProjects = response?.data?.project || []; 
     console.log("newprojects:", newProjects);
-    const newTeams = data?.teams || [];
+    const newTeams = response?.data?.teams || [];
     console.log("newteams:", newTeams);
     newProjects.teams = newTeams;  
     console.log("newprojects:", newProjects);
@@ -169,7 +174,7 @@ export const createProject = async (formData) => {
     globalState.projects = [...currentProjects, newProjects];
     globalState.projectId = [...globalState.projectId || [], newProjects._id];
     
-    return data
+    return response?.data
   } catch (error){
     console.error('Failed to create projects', error);
     toast.error('Failed to create projects');
@@ -180,11 +185,11 @@ export const createProject = async (formData) => {
 // Get all projects
 export const getAllProject = async () => {
   try {
-    const data = await apiCall('getAllProjects');
+    const response = await apiCall('getAllProjects');
     const currentProjects = Array.isArray(globalState.projects) ? globalState.projects : [];
-    globalState.projects = [...currentProjects, ...(data?.projects || [])];
-    globalState.projectId = [...currentProjects, ...(data?.projects.map(project => project._id) || [])];
-    return data;
+    globalState.projects = [...currentProjects, ...(response?.data?.projects || [])];
+    globalState.projectId = [...currentProjects, ...(response?.data?.projects.map(project => project._id) || [])];
+    return response?.data;
   } catch (error) {
     console.error('Failed to fetch projects', error);
     toast.error('Failed to fetch projects');
@@ -196,13 +201,13 @@ export const getAllProject = async () => {
 export const deleteProject = async (projectId) => {
   try {
 
-    const data = await apiCall('deleteProject', { id: projectId });
+    const response = await apiCall('deleteProject', { id: projectId });
    
     const projectData = getProjectsData(globalState.projects);
     globalState.projects = projectData.filter(project => project._id !== projectId);
     globalState.projectId = globalState.projectId.filter(id => id !== projectId);
    
-    return data;
+    return response.data;
   } catch (error) {
     console.error('Failed to delete project', error);
     toast.error('Failed to delete project');
@@ -213,11 +218,11 @@ export const deleteProject = async (projectId) => {
 // Create a new team
 export const createTeam = async (formData) => {
   try {
-    const data = await apiCall('createTeam', { body:formData});
-    const newTeam = data?.team || [];
+    const response = await apiCall('createTeam', { body:formData});
+    const newTeam = response?.data?.team || [];
     const currentTeams = globalState.teams || [];
     globalState.teams = [...currentTeams, newTeam];
-    return data;
+    return response?.data;
   } catch (error) {
     console.error('Failed to create team', error);
     toast.error('Failed to create team');
@@ -228,11 +233,28 @@ export const createTeam = async (formData) => {
 // Accept team invite
 export const acceptTeamInvite = async ({token}) => {
   try {
-    const data = await apiCall('acceptTeamInvite', { query: { token } });
-    return data;
+    const response = await apiCall('acceptTeamInvite', { query: { token } });
+    return response?.data;
   } catch (error) {
     console.error('Failed to accept team invite', error);
     toast.error('Failed to accept team invite');
+    
+  }
+};
+
+// Connect bot to guild
+export const botConnect = async (guildId) => {
+  try {
+    const response = await apiCall('botConnect', {guildId});
+    globalState.installLink = response?.data?.installLink || '';
+    console.log("responce:", response);
+    console.log("Install Link:", globalState.installLink);
+    console.log("Response Status:", response?.data?.installLink);
+    globalState.isBotInstalled = response?.status === 200;
+    return response;
+  } catch (error) {
+    console.error('Failed to connect bot', error);
+    toast.error('Failed to connect bot');
     
   }
 };

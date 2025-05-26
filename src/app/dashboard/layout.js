@@ -27,7 +27,15 @@ export default function DashboardLayout({ children }) {
       // }
       getME()
         .then((response) => {
-          globalState.user = response?.user || null;
+          globalState.user = {...globalState.user, 
+            _id: response?._id || null,
+            username: response?.username || '',
+            globalName: response?.globalName || '',
+            avatar: response?.avatar || '',
+            email: response?.email || '',
+            discordId: response?.discordId || '',
+            projects: Array.isArray(response?.projects) ? response.projects : []
+          }
           setLoading(false);
           
         })
@@ -44,7 +52,7 @@ export default function DashboardLayout({ children }) {
         });
       getGuilds()
         .then((response) => {
-          globalState.guilds = response?.guilds || [];
+          globalState.guilds = response || [];
         })
         .catch((error) => {
           console.error("Error fetching guilds data:", error);
