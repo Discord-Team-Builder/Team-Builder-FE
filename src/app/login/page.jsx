@@ -6,7 +6,8 @@ import { LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import useAuthorised from "@/lib/isAuthorised";
-import { login } from "@/api/APICall";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://team-builder-be-8trjtbq8su.dcdeploy.cloud';
 
 const Login = () => {
   const router = useRouter();
@@ -17,9 +18,7 @@ const Login = () => {
        router.push("/dashboard");
     }
   }, [isLoggedIn]);
-
   
-
   const handleDiscordLogin = () => {
     if (isLoggedIn){
       toast.error("You are already logged in");
@@ -27,7 +26,7 @@ const Login = () => {
       return;
     }
     
-    login();
+    window.location.href = `${API_BASE}/api/v1/auth/discord`;
     // For demonstration, we'll just show a toast
     toast.success("Redirecting to Discord for authentication...");
   }
