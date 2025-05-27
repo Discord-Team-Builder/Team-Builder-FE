@@ -125,13 +125,15 @@ export default function CreateProjectModal({ open, onClose }) {
 }
 
   const handleBotConnect = () => {
-    const selectedGuild = snap?.guilds.find(g => g._id === watch("guildId"));
+    const selectedGuild = snap?.guilds.find(g => g.guildId === watch("guildId"));
+    console.log("Selected Guild:", selectedGuild); 
     if (!selectedGuild) {
       alert("Please select a valid Discord server.");
       return;
     }
-    console.log("Connecting bot to guild:", selectedGuild._id);
-    botConnect(selectedGuild._id)
+    console.log("Selected Guild:", selectedGuild);  
+    console.log("Connecting bot to guild:", selectedGuild.guildId);
+    botConnect(selectedGuild.guildId)
     .then((response) => {
       console.log('Bot connected:', response);
       if (response?.statusCode === 200) {
