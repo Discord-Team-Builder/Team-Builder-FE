@@ -11,7 +11,7 @@ import { Button } from "../ui/button";
 import { getRoleStyles } from "./state";
 import CreateProjectCard from "./createProjectCard";
 import DialogDeleteConfirm from "../models/deleteConfirm";
-import { deleteProject } from '@/api/APICall';
+import { deleteProject, isValidToken } from '@/api/APICall';
 import showToast from '../shared/showToast';
 import { useSnapshot } from 'valtio';
 import globalState from '@/globalstate/page';
@@ -79,6 +79,7 @@ import { useRouter } from 'next/navigation';
   const [pendingInviteObj, setPendingInviteObj] = useState(null);
 
   useEffect(() => {
+    async function checkInvite() {
     try {
       const invite = localStorage.getItem('pendingInvite');
       if (invite) {
@@ -91,12 +92,21 @@ import { useRouter } from 'next/navigation';
           project: params.get("project"),
           by: params.get("by"),
         };
-        setPendingInviteObj(parsedInvite);
+       
+        const res = await isValidToken({ token: parsedInvite.token });
+        if (res?.statusCode === '200') {
+          setPendingInviteObj(parsedInvite);
+        } else {
+          localStorage.removeItem('pendingInvite');
+          setPendingInviteObj(null);
+        }
       }
     } catch (err) {
       console.error("Invalid invite data in localStorage:", err);
       setPendingInviteObj(null);
     }
+  }
+  checkInvite();
   }, []);
   const handleAcceptInvite = () => {
     window.location.href = `/invite/accept?token=${pendingInviteObj.token}&team=${pendingInviteObj.team}&project=${pendingInviteObj.project}&by=${pendingInviteObj.by}`;
@@ -104,8 +114,7 @@ import { useRouter } from 'next/navigation';
 
     return (
       <>
-      <div className="flex flex-col md:flex-row gap-4">
-        {pendingInviteObj && (
+      {pendingInviteObj && (
         <div className="bg-yellow-100 p-4 rounded-md mb-4 w-full">
           <p className="text-yellow-800 font-semibold mb-2">
             You have a pending invite!
@@ -114,7 +123,7 @@ import { useRouter } from 'next/navigation';
             <div><b>From:</b> {pendingInviteObj.by || 'N/A'}</div>
             <div><b>Team:</b> {pendingInviteObj.team || 'N/A'}</div>
             <div><b>Project:</b> {pendingInviteObj.project || 'N/A'}</div>
-            {/* Aur bhi details yahan dikhayein agar available ho */}
+            
           </div>
           <Button
             className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold"
@@ -124,6 +133,7 @@ import { useRouter } from 'next/navigation';
           </Button>
         </div>
       )}
+      <div className="flex flex-col md:flex-row gap-4">
           
         {data.map((item, index) => (
           <Card key={index} className="w-full md:w-1/3">

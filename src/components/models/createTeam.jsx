@@ -309,13 +309,20 @@ export default function CreateTeamModal({ open, onClose }) {
               
             </div>
             <div className=" flex gap-2 text-sm p-3 opacity-70 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg">
-            <InfoIcon/> <div><strong> Next Steps</strong> 
-            <ul className="list-decimal list-outside pl-4 ">
-              <li>Make sure the Team Builder bot is added to your Discord server</li>
-              <li>Share the invite link with your students</li>
-              <li>Students will authenticate with Discord and join the project</li>
-              <li>Teams will be formed automatically based on your settings</li>
+            <InfoIcon/> 
+            <div>
+            
+            <strong>Instructions:</strong>
+            <ul className="list-decimal list-outside pl-4">
+              <li>Add the Team Builder bot to your Discord server using the button above.</li>
+              <li>
+                <b>After installation, open your Discord server settings, go to <i>Roles</i>, and drag the Team Builder bot’s role to the top of the list (above all other roles except @everyone).</b>
+              </li>
+              <li>Share the invite link with your students.</li>
+              <li>Students will authenticate with Discord and join the project.</li>
+              <li>Teams will be formed automatically based on your settings.</li>
             </ul>
+          
             </div>
             </div>
           </div>

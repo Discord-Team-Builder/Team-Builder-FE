@@ -108,7 +108,7 @@ export const getStatus = async () => {
       globalState.user = null;
       globalState.guilds = [];
     }
-    return response.data;
+    return response;
   }
   catch (error) {
     if (error.status === 401) {
@@ -239,6 +239,17 @@ export const acceptTeamInvite = async ({token}) => {
     console.error('Failed to accept team invite', error);
     toast.error('Failed to accept team invite');
     
+  }
+};
+
+export const isValidToken = async({token}) =>{
+  try {
+    const response = await apiCall('isValidToken', { query: { token } });
+    return response;
+  } catch (error) {
+    console.error('Failed to validate invite token', error);
+    toast.error('Failed to validate invite token');
+    return null;
   }
 };
 
