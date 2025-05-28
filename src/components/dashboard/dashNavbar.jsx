@@ -14,7 +14,7 @@ import { logout } from "@/api/APICall";
 const DashNavbar= () => {
   const snap = useSnapshot(globalState)
   console.log("snap", snap.user);
-  const navigate = useRouter();
+  const router = useRouter();
   const avatarUrl = `https://cdn.discordapp.com/avatars/${snap?.user?.discordId || ''}/${snap?.user?.avatar || ''}.webp?size=80` ;
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);

@@ -7,27 +7,29 @@ import { getGuilds, getME, getAllProject } from "@/api/APICall";
 import { useRouter } from "next/navigation";
 import { ThreeDots } from "react-loader-spinner";
 import globalState from "@/globalstate/page";
-import { useSnapshot } from "valtio";
+import useAuthorised from "@/lib/isAuthorised";
 
 
 export default function DashboardLayout({ children }) {
-  const snap = useSnapshot(globalState);
-
-  // const isLoggedIn = snap.isLoggedIn;
-  const [loading, setLoading] = useState(true);
-    const router = useRouter();
+  const { isLoggedIn, loading } = useAuthorised();
+  const router = useRouter();
 
     
 
-    useEffect(() => {
+  useEffect(() => {
+    // Redirect to login if not logged in and not loading
+    if (!loading && isLoggedIn === false) {
+      router.replace("/login");
+    }
+  }, [isLoggedIn, loading, router]);
 
-      // if (!isLoggedIn) {
-      //   router.replace("/login");
-      //   return;
-      // }
-      getME()
-        .then((response) => {
-          globalState.user = {...globalState.user, 
+  useEffect(() => {
+  const fetchData = async () => {
+      try {
+        if (!globalState.user || !globalState.user._id) {
+          const response = await getME();
+          globalState.user = {
+            ...globalState.user,
             _id: response?._id || null,
             username: response?.username || '',
             globalName: response?.globalName || '',
@@ -35,30 +37,30 @@ export default function DashboardLayout({ children }) {
             email: response?.email || '',
             discordId: response?.discordId || '',
             projects: Array.isArray(response?.projects) ? response.projects : []
-          }
-          setLoading(false);
-          
-        })
-        .catch((error) => {
-          const status = error?.response?.status;
-         
-          if (status === 401) {
-            setLoading(false);
-            router.replace('/login'); // silently redirect to login
-          } else {
-            console.error("Error fetching user data:", error);
-            setLoading(false); 
-          }
-        });
-      getGuilds()
-        .then((response) => {
-          globalState.guilds = response || [];
-        })
-        .catch((error) => {
-          console.error("Error fetching guilds data:", error);
-        });
-      getAllProject()
-    }, []);
+          };
+        }
+        if (!globalState.guilds || globalState.guilds.length === 0) {
+          const guilds = await getGuilds();
+          globalState.guilds = guilds || [];
+        }
+        // You can do similar check for projects if needed
+        await getAllProject();
+       
+      } catch (error) {
+        const status = error?.response?.status;
+        if (status === 401) {
+          router.replace('/login');
+        } else {
+          console.error("Error fetching user data:", error);
+        
+        }
+      } 
+    };
+
+    if (isLoggedIn) {
+      fetchData();
+    }
+  }, [router, isLoggedIn]);
 
   if (loading) {
     return (

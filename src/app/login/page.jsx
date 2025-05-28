@@ -6,18 +6,13 @@ import { LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import useAuthorised from "@/lib/isAuthorised";
+import { ThreeDots } from "react-loader-spinner";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://team-builder-be-8trjtbq8su.dcdeploy.cloud';
 
 const Login = () => {
   const router = useRouter();
-  const isLoggedIn = useAuthorised();
-  
-  useEffect(() => {
-    if (isLoggedIn) {
-       router.push("/dashboard");
-    }
-  }, [isLoggedIn]);
+  const {isLoggedIn, loading} = useAuthorised();
   
   const handleDiscordLogin = () => {
     if (isLoggedIn){
@@ -30,6 +25,23 @@ const Login = () => {
     // For demonstration, we'll just show a toast
     toast.success("Redirecting to Discord for authentication...");
   }
+
+  if (loading) {
+      return (
+        <div className="flex items-center justify-center h-screen">
+          <ThreeDots
+            visible={true}
+            height="80"
+            width="80"
+            color="#5865F2"
+            radius="9"
+            ariaLabel="three-dots-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+          />
+        </div>
+      );
+    }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -52,7 +64,7 @@ const Login = () => {
                 TeamBuilder uses Discord for authentication. No additional account needed.
               </p>
               <Button 
-                disabled={isLoggedIn}
+               
                 className="w-full bg-[#5865F2] hover:bg-[#4752C4] cursor-pointer text-white justify-center py-6 text-base"
                 onClick={handleDiscordLogin}
               >
