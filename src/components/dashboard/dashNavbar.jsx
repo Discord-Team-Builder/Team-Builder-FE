@@ -10,6 +10,7 @@ import Image from "next/image";
 import  Avatar from '@/components/baseComponents/Avatar'
 import { getInitials } from '@/lib/getInitials'
 import { logout } from "@/api/APICall";
+import { UserProfile } from "./Profile";
 
 const DashNavbar= () => {
   const snap = useSnapshot(globalState)
@@ -17,6 +18,8 @@ const DashNavbar= () => {
   const router = useRouter();
   const avatarUrl = `https://cdn.discordapp.com/avatars/${snap?.user?.discordId || ''}/${snap?.user?.avatar || ''}.webp?size=80` ;
   const [isOpen, setIsOpen] = useState(false);
+  const [showProfile, setShowProfile] = useState(false); 
+
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -32,6 +35,10 @@ const DashNavbar= () => {
   const handleLogout = () => {
     logout().then(() => router.push("/login"));
   };
+
+  const handleOpen = () => setShowProfile(true);
+  const handleClose = () => setShowProfile(false);
+
 
   return (
     <header className="border-b bg-white sticky top-0 z-10 ">
@@ -72,12 +79,15 @@ const DashNavbar= () => {
 
           {isOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-50 p-4">
-              <p className="text-gray-800 font-medium mb-2">
-                {snap?.user?.globalName || 'Unknown'}
-              </p>
+              <button
+                onClick={handleOpen}
+                className="w-full text-left text-gray-800 hover:text-discord font-medium mb-2 cursor-pointer"
+              >
+                Profile
+              </button>
               <button
                 onClick={handleLogout}
-                className="w-full text-left text-red-500 hover:text-red-600 font-semibold cursor-pointer flex items-center gap-2 px-2 py-1 rounded-lg transition duration-200 ease-in-out"
+                className="w-full text-left text-red-500 hover:text-red-600 font-semibold cursor-pointer  transition duration-200 ease-in-out"
               >
                 Logout
               </button>
@@ -85,6 +95,9 @@ const DashNavbar= () => {
           )}
         </div>
       </div>
+        {showProfile && (
+          <UserProfile onClose={handleClose} />
+        )}    
     </header>
   );
 };
