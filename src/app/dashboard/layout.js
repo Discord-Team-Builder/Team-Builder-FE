@@ -36,7 +36,12 @@ export default function DashboardLayout({ children }) {
             avatar: response?.avatar || '',
             email: response?.email || '',
             discordId: response?.discordId || '',
-            projects: Array.isArray(response?.projects) ? response.projects : []
+            projects: Array.isArray(response?.projects) ? response.projects : [],
+            bio: response?.bio || "",
+            skills: Array.isArray(response?.skills) ? response.skills : [],
+            github: response?.github ||  "",
+            hashnode: response?.hashnode ||  "",
+            peerlist: response?.peerlist || "",
           };
         }
         if (!globalState.guilds || globalState.guilds.length === 0) {

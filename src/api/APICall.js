@@ -129,6 +129,19 @@ export const getME = async () => {
     
   }
 };
+export const updateProfile = async (formData) => {
+  try{
+    const response = await apiCall('updateProfile', {body: formData})
+    if (response.status === true) {
+      globalState.user = { ...globalState.user, ...response.data }
+    }
+
+    return response;
+  } catch (error) {
+    console.log('failed to update profile:', error)
+    toast.error('failed to update profile:')
+  }
+}
 export const login = async () => {
   try{
     const data = await apiCall('login');
@@ -207,7 +220,7 @@ export const deleteProject = async (projectId) => {
     globalState.projects = projectData.filter(project => project._id !== projectId);
     globalState.projectId = globalState.projectId.filter(id => id !== projectId);
    
-    return response.data;
+    return response;
   } catch (error) {
     console.error('Failed to delete project', error);
     toast.error('Failed to delete project');

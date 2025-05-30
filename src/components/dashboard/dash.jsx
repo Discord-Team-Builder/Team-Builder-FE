@@ -17,6 +17,7 @@ import { useSnapshot } from 'valtio';
 import globalState from '@/globalstate/page';
 import { getProjectsData } from '@/lib/getProjectsData';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
   
  const Dash  = () => {
   const router = useRouter();
@@ -62,7 +63,7 @@ import { useRouter } from 'next/navigation';
      
       deleteProject(project._id)
         .then((response) => {
-          showToast(response?.message)
+          showToast('success', `${response.message}`)
         })
         .catch((error) => {
           console.error("Error deleting project:", error);
