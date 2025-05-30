@@ -27,7 +27,9 @@ const AcceptInvitePage = () => {
     if (token) {
       isValidToken({ token }) 
         .then((res) => {
-          if (res?.statusCode === '200') {
+          
+          if (res.statusCode === 200) {
+            
             setTokenValid(true);
             localStorage.setItem('pendingInvite', window.location.search); 
           } else {
