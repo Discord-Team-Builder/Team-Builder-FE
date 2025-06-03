@@ -86,6 +86,16 @@ export default function DashboardLayout({ children }) {
   // If not loading, render the main layout
   return (   
     <>
+    <div className="min-h-screen bg-gradient-to-br from-primary-light/10 via-primary-medium/5 to-primary-dark/10">
+      {/* Colorful background elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-pink-400/20 to-purple-600/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-40 right-20 w-96 h-96 bg-gradient-to-r from-blue-400/20 to-cyan-600/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-1/3 w-80 h-80 bg-gradient-to-r from-green-400/20 to-teal-600/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-40 right-10 w-64 h-64 bg-gradient-to-r from-orange-400/20 to-red-600/20 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative z-10">
       {/* Main Content (right) */}
       <div className="h-[100dvh] flex flex-col overflow-hidden">
         <DashNavbar />
@@ -94,6 +104,8 @@ export default function DashboardLayout({ children }) {
         <main className="flex-1 overflow-y-auto scrollbar-hide p-4  dark:bg-[#1e1e2f]">
           {children}
         </main>
+      </div>
+      </div>
       </div>
     </div>
     </>
